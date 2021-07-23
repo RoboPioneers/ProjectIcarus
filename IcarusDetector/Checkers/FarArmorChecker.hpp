@@ -9,13 +9,16 @@ namespace Icarus
     public:
         FarArmorChecker()
         {
-            MaxLightBarLeaningAngle = 10.0;
+            ArmorCheckerBase::MaxLeaningAngle = 15.0;
+            // Disable angle check for far distance because low confidence in angle estimation.
+            ArmorCheckerBase::MaxDeltaAngle = 180.0;
             CheckerBase::ScenarioTags = {"Far"};
         }
 
     protected:
         bool CheckPattern(PONElement *candidate) override
         {
+            if (candidate->Feature.Width <= 1) return false;
             if (std::fabs(candidate->ContourA->Feature.Center.y - candidate->ContourB->Feature.Center.y)
                 > 5)
                 return false;

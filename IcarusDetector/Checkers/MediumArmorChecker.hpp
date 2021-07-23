@@ -9,12 +9,27 @@ namespace Icarus
     public:
         MediumArmorChecker()
         {
+            ArmorCheckerBase::MaxDeltaAngle = 20;
+            ArmorCheckerBase::MaxLeaningAngle = 45;
             CheckerBase::ScenarioTags = {"Medium"};
         }
 
     protected:
         bool CheckPattern(PONElement *candidate) override
         {
+            if (std::fabs(candidate->ContourA->Feature.Angle - 90.0) > MaxLeaningAngle ||
+                std::fabs(candidate->ContourB->Feature.Angle - 90.0) > MaxLeaningAngle)
+                return false;
+
+            if (std::fabs(candidate->ContourA->Feature.Angle - 90) > 2.0 ||
+                std::fabs(candidate->ContourB->Feature.Angle - 90) > 2.0)
+            {
+                if ((candidate->ContourA->Feature.Angle - 90) * (candidate->ContourB->Feature.Angle - 90) < 0)
+                {
+                    return false;
+                }
+            }
+
             if (std::fabs(candidate->ContourA->Feature.Center.y - candidate->ContourB->Feature.Center.y)
                 > std::max({candidate->ContourA->Feature.Length, candidate->ContourB->Feature.Length}))
                 return false;
@@ -34,9 +49,22 @@ namespace Icarus
                     return false;
             }
 
+            if (std::fabs(candidate->ContourA->Feature.Angle - 90.0) < 3 &&
+                std::fabs(candidate->ContourB->Feature.Angle - 90.0) < 3 &&
+                std::fabs(candidate->ContourA->Rectangle.center.y - candidate->ContourB->Rectangle.center.y)
+                > 10)
+                return false;
+
             if (std::fabs(candidate->ContourA->Feature.Length - candidate->ContourB->Feature.Length)
                 > std::min({candidate->ContourA->Feature.Length, candidate->ContourB->Feature.Length}) * 0.6)
                 return false;
+
+            auto length_ratio = candidate->Feature.Length / candidate->Feature.Width;
+            if (length_ratio > 9)
+                return false;
+            if (length_ratio < 1.5)
+                return false;
+
             return true;
         }
     };

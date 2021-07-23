@@ -19,8 +19,8 @@ namespace Icarus
         context->GetVariable<Gaia::InspectionService::InspectionClient*>("Inspector", Inspector.get());
         DebugMode = context->GetVariable<bool>("DebugMode", false);
 
-        EnemyColorMinHue = context->GetVariable<unsigned int>("EnemyMinHue", 0);
-        EnemyColorMaxHue = context->GetVariable<unsigned int>("EnemyMaxHue", 20);
+        EnemyColorMinHue = context->GetVariable<unsigned int>("EnemyMinHue", 100);
+        EnemyColorMaxHue = context->GetVariable<unsigned int>("EnemyMaxHue", 120);
 
         #ifdef DEBUG
         *DebugMode = true;

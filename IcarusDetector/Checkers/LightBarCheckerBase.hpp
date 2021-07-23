@@ -12,7 +12,7 @@ namespace Icarus
     public:
         int MinLength {0};
         int MaxLength {0};
-        double MaxLightBarLeaningAngle {60.0};
+        double MaxLeaningAngle {30.0};
 
         LightBarCheckerBase()
         {
@@ -23,10 +23,11 @@ namespace Icarus
         /// Check distance scenario.
         bool CheckScenario(ContourElement *candidate) override
         {
-            if (candidate->Feature.Angle > (180.0 - MaxLightBarLeaningAngle) ||
-                candidate->Feature.Angle < MaxLightBarLeaningAngle)
+            if (candidate->Feature.Angle > (90 + MaxLeaningAngle) ||
+                candidate->Feature.Angle < (90 - MaxLeaningAngle))
                 return false;
-            if (candidate->Feature.Length < MinLength || candidate->Feature.Length > MaxLength) return false;
+            if (candidate->Feature.Length < MinLength || candidate->Feature.Length > MaxLength)
+                return false;
             return true;
         }
     };

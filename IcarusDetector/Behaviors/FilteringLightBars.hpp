@@ -24,7 +24,6 @@ namespace Icarus
 
         unsigned int LightBarNearMediumSeparator;
         unsigned int LightBarMediumFarSeparator;
-        unsigned int LightBarMaxLeaningAngle;
 
         /// Main picture in the blackboard.
         cv::Mat* MainPicture {nullptr};

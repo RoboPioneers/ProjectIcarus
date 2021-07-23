@@ -10,7 +10,7 @@ namespace Icarus
     class ArmorCheckerBase : public CheckerBase<PONElement>
     {
     public:
-        double MaxLightBarLeaningAngle {20};
+        double MaxLeaningAngle {20};
         double MaxDeltaAngle {20};
 
         ArmorCheckerBase()
@@ -22,11 +22,8 @@ namespace Icarus
         /// Check distance scenario.
         bool CheckScenario(PONElement *candidate) override
         {
-            if (candidate->Feature.Angle < (180.0 - MaxLightBarLeaningAngle) &&
-                candidate->Feature.Angle > MaxLightBarLeaningAngle)
-                return false;
-            if (std::fabs(candidate->ContourA->Feature.Angle - 90.0) > MaxLightBarLeaningAngle ||
-                std::fabs(candidate->ContourB->Feature.Angle - 90.0) > MaxLightBarLeaningAngle)
+            if (candidate->Feature.Angle < (180.0 - MaxLeaningAngle) &&
+                candidate->Feature.Angle > MaxLeaningAngle)
                 return false;
             if (std::fabs(candidate->ContourA->Feature.Angle - candidate->ContourB->Feature.Angle)
                 > MaxDeltaAngle)

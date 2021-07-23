@@ -23,6 +23,9 @@ namespace Icarus
         /// Generated interested area that very likely contains a target.
         cv::Rect* InterestedArea;
 
+        /// The time point of the last time when refresh ROI.
+        std::chrono::steady_clock::time_point InterestedAreaRefreshTimestamp;
+
         /// The previous interested area.
         std::optional<cv::Rect> PreviousInterestedArea {std::nullopt};
         /// The beginning time of firstly lost the ROI.

@@ -9,14 +9,16 @@ namespace Icarus
     public:
         FarLightBarChecker()
         {
+            // Disable light bar leaning check for far distance.
+            LightBarCheckerBase::MaxLeaningAngle = 90;
             CheckerBase::ScenarioTags = {"Far"};
         }
 
     protected:
         bool CheckPattern(ContourElement *candidate) override
         {
-            if (candidate->Feature.Length < 3) return false;
-            if (candidate->Feature.Length - candidate->Feature.Width > 5) return false;
+            if (candidate->Feature.Length - candidate->Feature.Width > 6)
+                return false;
             return true;
         }
     };

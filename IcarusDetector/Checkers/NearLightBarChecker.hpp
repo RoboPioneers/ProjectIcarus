@@ -9,6 +9,7 @@ namespace Icarus
     public:
         NearLightBarChecker()
         {
+            LightBarCheckerBase::MaxLeaningAngle = 45.0;
             CheckerBase::ScenarioTags = {"Far"};
         }
 
@@ -16,7 +17,8 @@ namespace Icarus
         bool CheckPattern(ContourElement *candidate) override
         {
             auto length_ratio = candidate->Feature.Length / candidate->Feature.Width;
-            if (length_ratio < 3.0) return false;
+            if (length_ratio < 1.0)
+                return false;
             return true;
         }
     };

@@ -143,7 +143,7 @@ namespace Icarus
             for (const auto& armor : possible_armors[0])
             {
                 Modules::ImageDebugUtility::DrawRotatedRectangle(armors_picture, armor->Rectangle,
-                                                                 cv::Scalar(0, 0, 255), 2);
+                                                                 cv::Scalar(0, 255, 0), 2);
             }
             for (const auto& armor : possible_armors[1])
             {
@@ -153,7 +153,7 @@ namespace Icarus
             for (const auto& armor : possible_armors[2])
             {
                 Modules::ImageDebugUtility::DrawRotatedRectangle(armors_picture, armor->Rectangle,
-                                                                 cv::Scalar(255, 0, 0), 2);
+                                                                 cv::Scalar(0, 255, 0), 2);
             }
             cv::resize(armors_picture, armors_picture, armors_picture.size() / 2);
             ArmorsWriter->Write(armors_picture);

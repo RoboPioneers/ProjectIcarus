@@ -10,9 +10,7 @@ namespace Icarus
         LightBarNearMediumSeparator = GetConfigurator()->Get<unsigned int>("LightBarNearMediumSeparator")
                 .value_or(35);
         LightBarMediumFarSeparator = GetConfigurator()->Get<unsigned int>("LightBarNearMediumSeparator")
-                .value_or(10);
-        LightBarMaxLeaningAngle = GetConfigurator()->Get<unsigned int>("LightBarMaxLeaningAngle")
-                .value_or(60);
+                .value_or(7);
     }
 
     void FilteringLightBars::OnInitialize()
@@ -48,17 +46,14 @@ namespace Icarus
 
         this->LightBarFarLayer->ClearHolders();
         this->LightBarMediumLayer->ClearHolders();
-        this->LightBarMediumLayer->ClearHolders();
+        this->LightBarNearLayer->ClearHolders();
 
-        FarChecker.MaxLightBarLeaningAngle = LightBarMaxLeaningAngle;
         FarChecker.MinLength = 0;
-        FarChecker.MaxLength = static_cast<int>(MainPicture->rows * LightBarMediumFarSeparator);
-        MediumChecker.MaxLightBarLeaningAngle = LightBarMaxLeaningAngle;
-        MediumChecker.MinLength = static_cast<int>(MainPicture->rows * LightBarMediumFarSeparator);
-        MediumChecker.MaxLength = static_cast<int>(MainPicture->rows * LightBarNearMediumSeparator);
-        NearChecker.MaxLightBarLeaningAngle = LightBarMaxLeaningAngle;
-        NearChecker.MinLength = static_cast<int>(MainPicture->rows * LightBarNearMediumSeparator);
-        NearChecker.MaxLength = static_cast<int>(MainPicture->rows * LightBarNearMediumSeparator);
+        FarChecker.MaxLength = static_cast<int>(LightBarMediumFarSeparator) + 3;
+        MediumChecker.MinLength = static_cast<int>(LightBarMediumFarSeparator) - 3;
+        MediumChecker.MaxLength = static_cast<int>(LightBarNearMediumSeparator) + 7;
+        NearChecker.MinLength = static_cast<int>(LightBarNearMediumSeparator) - 7;
+        NearChecker.MaxLength = static_cast<int>(MainPicture->rows * 0.3);
         for (auto& contour_element : *Contours)
         {
             if (FarChecker.Check(contour_element.get()))
@@ -66,12 +61,12 @@ namespace Icarus
                 LightBarLayer->AddHolder(contour_element.get());
                 LightBarFarLayer->AddHolder(contour_element.get());
             }
-            else if (MediumChecker.Check(contour_element.get()))
+            if (MediumChecker.Check(contour_element.get()))
             {
                 LightBarLayer->AddHolder(contour_element.get());
                 LightBarMediumLayer->AddHolder(contour_element.get());
             }
-            else if (NearChecker.Check(contour_element.get()))
+            if (NearChecker.Check(contour_element.get()))
             {
                 LightBarLayer->AddHolder(contour_element.get());
                 LightBarNearLayer->AddHolder(contour_element.get());

@@ -9,15 +9,34 @@ namespace Icarus
     public:
         NearArmorChecker()
         {
-            MaxDeltaAngle = 8.0f;
+            ArmorCheckerBase::MaxDeltaAngle = 6.0f;
+            ArmorCheckerBase::MaxLeaningAngle = 30.0f;
             CheckerBase::ScenarioTags = {"Near"};
         }
 
     protected:
         bool CheckPattern(PONElement *candidate) override
         {
-            if (std::fabs(candidate->ContourA->Feature.Center.y - candidate->ContourB->Feature.Center.y)
-                > std::max({candidate->ContourA->Feature.Length, candidate->ContourB->Feature.Length}))
+//            if (std::fabs(candidate->ContourA->Feature.Center.y - candidate->ContourB->Feature.Center.y)
+//                > std::max({candidate->ContourA->Feature.Length, candidate->ContourB->Feature.Length}))
+//                return false;
+            if (std::fabs(candidate->ContourA->Feature.Angle - 90.0) > MaxLeaningAngle ||
+                std::fabs(candidate->ContourB->Feature.Angle - 90.0) > MaxLeaningAngle)
+                return false;
+
+            if (std::fabs(candidate->ContourA->Feature.Angle - 90) > 2.0 &&
+                std::fabs(candidate->ContourB->Feature.Angle - 90) > 2.0)
+            {
+                if ((candidate->ContourA->Feature.Angle - 90) * (candidate->ContourB->Feature.Angle - 90) < 0)
+                {
+                    return false;
+                }
+            }
+
+            if (std::fabs(candidate->ContourA->Feature.Angle - 90.0) < 3 &&
+                std::fabs(candidate->ContourB->Feature.Angle - 90.0) < 3 &&
+                std::fabs(candidate->ContourA->Rectangle.center.y - candidate->ContourB->Rectangle.center.y)
+                > 10)
                 return false;
 
             if (std::fabs(candidate->ContourA->Feature.Length - candidate->ContourB->Feature.Length)
