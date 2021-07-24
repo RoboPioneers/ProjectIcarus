@@ -98,5 +98,4 @@ namespace Icarus
         CameraClient->SetExposure(camera_exposure);
         CameraClient->SetGain(camera_gain);
     }
-    }
 }
