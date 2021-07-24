@@ -1,11 +1,14 @@
 #include "IcarusDetector.hpp"
-
+#include "Modules/GeneralMessageTranslator.hpp"
 #include "Signal.pb.h"
 
 namespace Icarus
 {
     IcarusDetector::IcarusDetector() : Gaia::Framework::Service("IcarusDetector")
-    {}
+    {
+        Gaia::Framework::Service::OptionDescription.add_options()
+                ("debug,d", "enable debug mode.");
+    }
 
     /// Inject basic facilities into the behavior tree.
     void IcarusDetector::OnInstall()
@@ -22,9 +25,10 @@ namespace Icarus
         EnemyColorMinHue = context->GetPointer<unsigned int>("EnemyMinHue", 100);
         EnemyColorMaxHue = context->GetPointer<unsigned int>("EnemyMaxHue", 120);
 
-        #ifdef DEBUG
-        *DebugMode = true;
-        #endif
+        if (OptionVariables.count("debug"))
+        {
+            *DebugMode = true;
+        }
 
         DetectionBehaviors.Initialize(context);
 
@@ -32,8 +36,10 @@ namespace Icarus
 
         AddSubscription("serial_ports/" + serial_port + "/read",
                         [this](const std::string& content){
+            auto [id, package] = Modules::GeneralMessageTranslator::Decode(content);
+            if (id != 3) return;
             Signal signal;
-            signal.ParseFromString(content);
+            signal.ParseFromString(package);
             if (signal.name() == "sc_b")
             {
                 this->EnemyColorInitialized = true;
@@ -55,9 +61,11 @@ namespace Icarus
             } else if (signal.name() == "to_ec_b" || signal.name() == "to_ec_s")
             {
                 this->Enable = false;
+                GetLogger()->RecordMilestone("Switch to energy mode, battle assistant paused.");
             } else if (signal.name() == "to_a")
             {
                 this->Enable = true;
+                GetLogger()->RecordMilestone("Switch back to back assistant mode.");
             }
         });
     }
@@ -71,7 +79,7 @@ namespace Icarus
     /// Execute the main detection behavior tree.
     void IcarusDetector::OnUpdate()
     {
-//        if (!EnemyColorInitialized) return;
+        if (!EnemyColorInitialized) return;
         DetectionBehaviors.Execute();
     }
 }

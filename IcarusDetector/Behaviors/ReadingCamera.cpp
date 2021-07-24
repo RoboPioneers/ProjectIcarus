@@ -18,8 +18,6 @@ namespace Icarus
                                                                            GetConnection());
         CameraReader = std::make_shared<Gaia::CameraService::CameraReader>(
                 CameraClient->GetReader(vision_name));
-
-        LastRetrievingTime = std::chrono::system_clock::now();
         LastMeasuringTime = std::chrono::system_clock::now();
     }
 
@@ -36,15 +34,14 @@ namespace Icarus
             GetLogger()->RecordMessage("FPS: " + std::to_string(fps));
             LastMeasuringTime = current_time;
         }
-        if (CameraReader->ReadTimestamp() - LastRetrievingTime > std::chrono::milliseconds(1500))
+        if (current_time - CameraReader->ReadTimestamp() > std::chrono::milliseconds(1500))
         {
             GetLogger()->RecordError("Camera timestamp overtime, considered as camera offline.");
-            throw Gaia::Exceptions::ExceptionWrapper<std::runtime_error>("Camera timestamp overtime");
+            return BehaviorTree::Result::Failure;
         }
         ++AccumulatedFramesCount;
 
         *MainPicture = CameraReader->Read();
-        LastRetrievingTime = CameraReader->ReadTimestamp();
         return BehaviorTree::Result::Success;
     }
 }

@@ -1,11 +1,14 @@
 #include "IcarusChallenger.hpp"
-
+#include "Modules/GeneralMessageTranslator.hpp"
 #include "Signal.pb.h"
 
 namespace Icarus
 {
     IcarusChallenger::IcarusChallenger() : Gaia::Framework::Service("IcarusChallenger")
-    {}
+    {
+        Gaia::Framework::Service::OptionDescription.add_options()
+                ("debug,d", "enable debug mode.");
+    }
 
     /// Inject basic facilities into the behavior tree.
     void IcarusChallenger::OnInstall()
@@ -21,9 +24,10 @@ namespace Icarus
         SmallEnergyEnable = context->GetPointer<bool>("SmallEnergyEnable", false);
         BigEnergyEnable = context->GetPointer<bool>("BigEnergyEnable", false);
 
-        #ifdef DEBUG
-        *DebugMode = true;
-        #endif
+        if (OptionVariables.count("debug"))
+        {
+            *DebugMode = true;
+        }
 
         DetectionBehaviors.Initialize(context);
 
@@ -44,8 +48,10 @@ namespace Icarus
 
         AddSubscription("serial_ports/" + serial_port + "/read",
                         [this](const std::string& content){
+            auto [id, package] = Modules::GeneralMessageTranslator::Decode(content);
+            if (id != 3) return;
             Signal signal;
-            signal.ParseFromString(content);
+            signal.ParseFromString(package);
             if (signal.name() == "to_ec_b")
             {
                 *(this->SmallEnergyEnable) = false;

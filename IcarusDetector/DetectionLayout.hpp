@@ -20,11 +20,13 @@ namespace Icarus
     class DetectionLayout : public Gaia::BehaviorTree::Containers::Sequence
     {
     public:
-        BEHAVIOR(ReadingCamera, reading_camera)
-        BEHAVIOR(FilteringArea, filtering_area)
-        BEHAVIOR(FilteringContours, filtering_contours)
-        BEHAVIOR(FilteringLightBars, filtering_light_bars)
-        BEHAVIOR(FilteringArmors, filtering_armors)
+        CONTAINER_BEGIN(Containers::Sequence, upper_sequence)
+            BEHAVIOR(ReadingCamera, reading_camera)
+            BEHAVIOR(FilteringArea, filtering_area)
+            BEHAVIOR(FilteringContours, filtering_contours)
+            BEHAVIOR(FilteringLightBars, filtering_light_bars)
+            BEHAVIOR(FilteringArmors, filtering_armors)
+        CONTAINER_END(upper_sequence)
         BEHAVIOR(SendingCommand, sending_command)
     };
 }

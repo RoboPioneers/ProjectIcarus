@@ -14,8 +14,6 @@ namespace Icarus
     private:
         /// Time point of last FPS measuring.
         std::chrono::system_clock::time_point LastMeasuringTime;
-        /// Time point of last camera capture.
-        std::chrono::system_clock::time_point LastRetrievingTime;
         /// Accumulated frames counter from last FPS measuring.
         unsigned int AccumulatedFramesCount {0};
 
