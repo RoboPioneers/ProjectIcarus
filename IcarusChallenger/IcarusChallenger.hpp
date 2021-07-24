@@ -9,10 +9,10 @@
 
 namespace Icarus
 {
-    class IcarusDetector : public Gaia::Framework::Service
+    class IcarusChallenger : public Gaia::Framework::Service
     {
     public:
-        IcarusDetector();
+        IcarusChallenger();
 
     protected:
         bool* DebugMode {nullptr};

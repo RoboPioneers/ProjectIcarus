@@ -1,14 +1,14 @@
-#include "IcarusDetector.hpp"
+#include "IcarusChallenger.hpp"
 
 #include "Signal.pb.h"
 
 namespace Icarus
 {
-    IcarusDetector::IcarusDetector() : Gaia::Framework::Service("IcarusChallenger")
+    IcarusChallenger::IcarusChallenger() : Gaia::Framework::Service("IcarusChallenger")
     {}
 
     /// Inject basic facilities into the behavior tree.
-    void IcarusDetector::OnInstall()
+    void IcarusChallenger::OnInstall()
     {
         Inspector = std::make_unique<Gaia::InspectionService::InspectionClient>(Name, GetConnection());
         auto context = std::make_shared<Gaia::Blackboards::Blackboard>();
@@ -63,13 +63,13 @@ namespace Icarus
     }
 
     /// Finalize the whole behavior tree.
-    void IcarusDetector::OnUninstall()
+    void IcarusChallenger::OnUninstall()
     {
         DetectionBehaviors.Finalize();
     }
 
     /// Execute the main detection behavior tree.
-    void IcarusDetector::OnUpdate()
+    void IcarusChallenger::OnUpdate()
     {
         DetectionBehaviors.Execute();
     }
