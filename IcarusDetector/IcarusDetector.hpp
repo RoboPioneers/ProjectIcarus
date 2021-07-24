@@ -4,6 +4,7 @@
 #include <GaiaBackground/GaiaBackground.hpp>
 #include <GaiaInspectionClient/GaiaInspectionClient.hpp>
 #include <GaiaSerialIOClient/GaiaSerialIOClient.hpp>
+#include <GaiaCameraClient/GaiaCameraClient.hpp>
 #include <atomic>
 #include "DetectionLayout.hpp"
 
@@ -18,6 +19,8 @@ namespace Icarus
         bool* DebugMode {nullptr};
 
         std::unique_ptr<Gaia::InspectionService::InspectionClient> Inspector {nullptr};
+        /// Client for camera service.
+        std::shared_ptr<Gaia::CameraService::CameraClient> CameraClient {nullptr};
 
         std::atomic_bool EnemyColorInitialized {false};
 
@@ -36,5 +39,8 @@ namespace Icarus
 
         /// Execute the detection behavior tree.
         void OnUpdate() override;
+
+        /// Reset camera settings.
+        void OnResume() override;
     };
 }

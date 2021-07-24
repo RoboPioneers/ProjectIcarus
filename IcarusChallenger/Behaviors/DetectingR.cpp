@@ -19,7 +19,8 @@ namespace Icarus
     void DetectingR::OnInitialize()
     {
         InitializeFacilities();
-
+        RWriter = std::make_unique<Gaia::SharedPicture::PictureWriter>("icarus.challenger.r",
+                                                                       1920 * 1080 * 3);
         R = GetBlackboard()->GetPointer<cv::Rect>("R");
         Panel = GetBlackboard()->GetPointer<std::optional<cv::RotatedRect>>("Panel", std::nullopt);
         Picture = GetBlackboard()->GetPointer<cv::Mat>("MainPicture");
@@ -86,6 +87,13 @@ namespace Icarus
         }
 
         PreviousRFound = true;
+
+        DEBUG_BEGIN
+        cv::Mat display_r = Picture->clone();
+        cv::rectangle(display_r, *R, cv::Scalar(0, 255, 0), 2);
+        cv::resize(display_r, display_r, display_r.size() / 2);
+        RWriter->Write(display_r);
+        DEBUG_END
 
         return BehaviorTree::Result::Success;
     }

@@ -14,6 +14,14 @@ namespace Icarus
     void IcarusDetector::OnInstall()
     {
         Inspector = std::make_unique<Gaia::InspectionService::InspectionClient>(Name, GetConnection());
+        auto camera_type = GetConfigurator()->Get<std::string>("CameraType").value_or("*");
+        auto camera_index = GetConfigurator()->Get<unsigned int>("CameraIndex").value_or(0);
+        CameraClient = std::make_shared<Gaia::CameraService::CameraClient>(camera_type, camera_index,
+                                                                           GetConnection());
+        auto camera_exposure = GetConfigurator()->Get<unsigned int>("Exposure").value_or(2500);
+        auto camera_gain = GetConfigurator()->Get<unsigned int>("Gain").value_or(16);
+        CameraClient->SetExposure(camera_exposure);
+        CameraClient->SetGain(camera_gain);
         auto context = std::make_shared<Gaia::Blackboards::Blackboard>();
 
         context->GetPointer<std::shared_ptr<sw::redis::Redis>>("Connection", GetConnection());
@@ -60,11 +68,11 @@ namespace Icarus
                         + std::to_string(*(this->EnemyColorMaxHue)) + "]");
             } else if (signal.name() == "to_ec_b" || signal.name() == "to_ec_s")
             {
-                this->Enable = false;
+                this->Pause();
                 GetLogger()->RecordMilestone("Switch to energy mode, battle assistant paused.");
             } else if (signal.name() == "to_a")
             {
-                this->Enable = true;
+                this->Resume();
                 GetLogger()->RecordMilestone("Switch back to back assistant mode.");
             }
         });
@@ -81,5 +89,13 @@ namespace Icarus
     {
         if (!EnemyColorInitialized) return;
         DetectionBehaviors.Execute();
+    }
+
+    void IcarusDetector::OnResume()
+    {
+        auto camera_exposure = GetConfigurator()->Get<unsigned int>("Exposure").value_or(2500);
+        auto camera_gain = GetConfigurator()->Get<unsigned int>("Gain").value_or(16);
+        CameraClient->SetExposure(camera_exposure);
+        CameraClient->SetGain(camera_gain);
     }
 }

@@ -4,6 +4,7 @@
 #include <GaiaBackground/GaiaBackground.hpp>
 #include <GaiaInspectionClient/GaiaInspectionClient.hpp>
 #include <GaiaSerialIOClient/GaiaSerialIOClient.hpp>
+#include <GaiaCameraClient/GaiaCameraClient.hpp>
 #include <atomic>
 #include "DetectionLayout.hpp"
 
@@ -20,10 +21,15 @@ namespace Icarus
         bool* BigEnergyEnable {nullptr};
 
         std::unique_ptr<Gaia::InspectionService::InspectionClient> Inspector {nullptr};
+        /// Client for camera service.
+        std::shared_ptr<Gaia::CameraService::CameraClient> CameraClient {nullptr};
 
     protected:
         /// Behavior tree for detection.
         DetectionLayout DetectionBehaviors;
+
+        /// Reset camera settings.
+        void OnResume() override;
 
         /// Inject basic facilities into the behavior tree.
         void OnInstall() override;

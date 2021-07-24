@@ -14,8 +14,12 @@ namespace Icarus
     void IcarusChallenger::OnInstall()
     {
         Inspector = std::make_unique<Gaia::InspectionService::InspectionClient>(Name, GetConnection());
-        auto context = std::make_shared<Gaia::Blackboards::Blackboard>();
+        auto camera_type = GetConfigurator()->Get<std::string>("CameraType").value_or("*");
+        auto camera_index = GetConfigurator()->Get<unsigned int>("CameraIndex").value_or(0);
+        CameraClient = std::make_shared<Gaia::CameraService::CameraClient>(camera_type, camera_index,
+                                                                           GetConnection());
 
+        auto context = std::make_shared<Gaia::Blackboards::Blackboard>();
         context->GetPointer<std::shared_ptr<sw::redis::Redis>>("Connection", GetConnection());
         context->GetPointer<Gaia::Framework::Clients::LogClient*>("Logger", GetLogger());
         context->GetPointer<Gaia::Framework::Clients::ConfigurationClient*>("Configurator", GetConfigurator());
@@ -56,22 +60,22 @@ namespace Icarus
             {
                 *(this->SmallEnergyEnable) = false;
                 *(this->BigEnergyEnable) = true;
-                this->Enable = true;
+                this->Resume();
             } else if (signal.name() == "to_ec_s")
             {
                 *(this->SmallEnergyEnable) = true;
                 *(this->BigEnergyEnable) = false;
-                this->Enable = true;
+                this->Resume();
             } else if (signal.name() == "stop_ec" || signal.name() == "to_a")
             {
                 *(this->SmallEnergyEnable) = false;
                 *(this->BigEnergyEnable) = false;
-                this->Enable = false;
+                this->Pause();
             }
         });
 
         /// Disabled on initial.
-        this->Enable = false;
+        this->Pause();
     }
 
     /// Finalize the whole behavior tree.
@@ -84,5 +88,15 @@ namespace Icarus
     void IcarusChallenger::OnUpdate()
     {
         DetectionBehaviors.Execute();
+    }
+
+    /// Reset camera settings.
+    void IcarusChallenger::OnResume()
+    {
+        auto camera_exposure = GetConfigurator()->Get<unsigned int>("Exposure").value_or(1000);
+        auto camera_gain = GetConfigurator()->Get<unsigned int>("Gain").value_or(8);
+        CameraClient->SetExposure(camera_exposure);
+        CameraClient->SetGain(camera_gain);
+    }
     }
 }
