@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.10)
 # Project Settings
 #==============================
 
-set(TARGET_NAME "Detector")
+set(TARGET_NAME "Challenger")
 set(TARGET_NAMESPACE "Icarus")
 set(TARGET_VERSION 0.9.0)
 

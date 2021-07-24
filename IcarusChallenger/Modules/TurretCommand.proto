@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message TurretCommand{
+  uint32 command = 1;
+  float yaw = 2;
+  float pitch = 3;
+}

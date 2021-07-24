@@ -14,10 +14,9 @@ namespace Icarus
     {
         InitializeFacilities();
 
-        MainPicture = GetBlackboard()->GetObject<cv::Mat>("MainPicture");
-        InterestedArea = GetBlackboard()->GetObject<cv::Rect>(
-                "InterestedArea", cv::Rect());
-        FoundTarget = GetBlackboard()->GetObject<std::optional<cv::RotatedRect>>("FoundTarget", std::nullopt);
+        MainPicture = GetBlackboard()->GetPointer<cv::Mat>("MainPicture");
+        InterestedArea = GetBlackboard()->GetPointer<cv::Rect>("InterestedArea");
+        FoundTarget = GetBlackboard()->GetPointer<std::optional<cv::RotatedRect>>("FoundTarget", std::nullopt);
 
         LoadConfigurations();
     }

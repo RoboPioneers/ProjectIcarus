@@ -14,20 +14,20 @@ namespace Icarus
     {
         InitializeFacilities();
 
-        ArmorsWriter = std::make_unique<SharedPicture::PictureWriter>("icarus.armors", 1920 * 1080 * 3);
+        ArmorsWriter = std::make_unique<SharedPicture::PictureWriter>("icarus.detector.armors", 1920 * 1080 * 3);
 
-        MainPicture = GetBlackboard()->GetObject<cv::Mat>("MainPicture");
-        Contours = GetBlackboard()->GetObject<
+        MainPicture = GetBlackboard()->GetPointer<cv::Mat>("MainPicture");
+        Contours = GetBlackboard()->GetPointer<
                 tbb::concurrent_vector<ContourElement::Pointer>>("Contours");
-        LightBarFarLayer = GetBlackboard()->GetObject<Tags::Index>(
+        LightBarFarLayer = GetBlackboard()->GetPointer<Tags::Index>(
                 "LightBarFarLayer");
-        LightBarMediumLayer = GetBlackboard()->GetObject<Tags::Index>(
+        LightBarMediumLayer = GetBlackboard()->GetPointer<Tags::Index>(
                 "LightBarMediumLayer");
-        LightBarNearLayer = GetBlackboard()->GetObject<Tags::Index>(
+        LightBarNearLayer = GetBlackboard()->GetPointer<Tags::Index>(
                 "LightBarNearLayer");
-        FoundTarget = GetBlackboard()->GetObject<std::optional<cv::RotatedRect>>("FoundTarget", std::nullopt);
-        HitPoint = GetBlackboard()->GetObject<cv::Point2i>("HitPoint");
-        HitCommand = GetBlackboard()->GetVariable<int>("HitCommand");
+        FoundTarget = GetBlackboard()->GetPointer<std::optional<cv::RotatedRect>>("FoundTarget", std::nullopt);
+        HitPoint = GetBlackboard()->GetPointer<cv::Point2i>("HitPoint");
+        HitCommand = GetBlackboard()->GetPointer<int>("HitCommand");
         FarChecker.Initialize(GetConfigurator());
         MediumChecker.Initialize(GetConfigurator());
         NearChecker.Initialize(GetConfigurator());

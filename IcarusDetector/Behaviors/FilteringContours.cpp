@@ -22,15 +22,15 @@ namespace Icarus
     {
         InitializeFacilities();
 
-        EnemyMinHue = GetBlackboard()->GetVariable<unsigned int>("EnemyMinHue", 0);
-        EnemyMaxHue = GetBlackboard()->GetVariable<unsigned int>("EnemyMaxHue", 20);
+        EnemyMinHue = GetBlackboard()->GetPointer<unsigned int>("EnemyMinHue", 0);
+        EnemyMaxHue = GetBlackboard()->GetPointer<unsigned int>("EnemyMaxHue", 20);
 
-        MainPicture = GetBlackboard()->GetObject<cv::Mat>("MainPicture");
-        MaskPicture = GetBlackboard()->GetObject<cv::Mat>("MaskPicture");
+        MainPicture = GetBlackboard()->GetPointer<cv::Mat>("MainPicture");
+        MaskPicture = GetBlackboard()->GetPointer<cv::Mat>("MaskPicture");
 
-        InterestedArea = GetBlackboard()->GetObject<cv::Rect>("InterestedArea");
+        InterestedArea = GetBlackboard()->GetPointer<cv::Rect>("InterestedArea");
 
-        Contours = GetBlackboard()->GetObject<tbb::concurrent_vector<ContourElement::Pointer>>
+        Contours = GetBlackboard()->GetPointer<tbb::concurrent_vector<ContourElement::Pointer>>
                 ("Contours");
 
         LoadConfigurations();
@@ -39,7 +39,7 @@ namespace Icarus
                 cv::MORPH_DILATE, CV_8U, cv::getStructuringElement(cv::MORPH_RECT,
                                                                    cv::Size(15, 15)));
         MaskWriter =
-                std::make_unique<Gaia::SharedPicture::PictureWriter>("icarus.mask", 1920 * 1080 * 3);
+                std::make_unique<Gaia::SharedPicture::PictureWriter>("icarus.detector.mask", 1920 * 1080 * 3);
     }
 
     BehaviorTree::Result FilteringContours::OnExecute()

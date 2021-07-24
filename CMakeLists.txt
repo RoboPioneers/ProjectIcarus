@@ -22,6 +22,7 @@ endif()
 #==============================
 
 add_subdirectory("IcarusDetector")
+add_subdirectory("IcarusChallenger")
 
 if (WITH_TEST)
 endif()

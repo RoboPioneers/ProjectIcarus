@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message Signal
+{
+  string name = 1;
+}

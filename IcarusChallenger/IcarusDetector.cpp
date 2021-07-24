@@ -4,7 +4,7 @@
 
 namespace Icarus
 {
-    IcarusDetector::IcarusDetector() : Gaia::Framework::Service("IcarusDetector")
+    IcarusDetector::IcarusDetector() : Gaia::Framework::Service("IcarusChallenger")
     {}
 
     /// Inject basic facilities into the behavior tree.
@@ -18,9 +18,8 @@ namespace Icarus
         context->GetPointer<Gaia::Framework::Clients::ConfigurationClient*>("Configurator", GetConfigurator());
         context->GetPointer<Gaia::InspectionService::InspectionClient*>("Inspector", Inspector.get());
         DebugMode = context->GetPointer<bool>("DebugMode", false);
-
-        EnemyColorMinHue = context->GetPointer<unsigned int>("EnemyMinHue", 100);
-        EnemyColorMaxHue = context->GetPointer<unsigned int>("EnemyMaxHue", 120);
+        SmallEnergyEnable = context->GetPointer<bool>("SmallEnergyEnable", false);
+        BigEnergyEnable = context->GetPointer<bool>("BigEnergyEnable", false);
 
         #ifdef DEBUG
         *DebugMode = true;
@@ -30,34 +29,35 @@ namespace Icarus
 
         auto serial_port = GetConfigurator()->Get<std::string>("SerialPort").value_or("ttyTHS2");
 
+        AddCommand("to_ec_b", [this](const std::string& content){
+            *(this->BigEnergyEnable) = true;
+            *(this->SmallEnergyEnable) = false;
+        });
+        AddCommand("to_ec_s", [this](const std::string& content){
+            *(this->BigEnergyEnable) = false;
+            *(this->SmallEnergyEnable) = true;
+        });
+        AddCommand("stop_ec", [this](const std::string& content){
+            *(this->BigEnergyEnable) = false;
+            *(this->SmallEnergyEnable) = false;
+        });
+
         AddSubscription("serial_ports/" + serial_port + "/read",
                         [this](const std::string& content){
             Signal signal;
             signal.ParseFromString(content);
-            if (signal.name() == "sc_b")
+            if (signal.name() == "to_ec_b")
             {
-                this->EnemyColorInitialized = true;
-                *(this->EnemyColorMinHue) = 0;
-                *(this->EnemyColorMaxHue) = 20;
-                this->GetLogger()->RecordMilestone(
-                        "Color received: alley color blue, enemy color red ["
-                        + std::to_string(*(this->EnemyColorMinHue)) + ","
-                        + std::to_string(*(this->EnemyColorMaxHue)) + "]");
-            } else if (signal.name() == "sc_r")
+                *(this->SmallEnergyEnable) = false;
+                *(this->BigEnergyEnable) = true;
+            } else if (signal.name() == "to_ec_s")
             {
-                this->EnemyColorInitialized = true;
-                *(this->EnemyColorMinHue) = 100;
-                *(this->EnemyColorMaxHue) = 120;
-                this->GetLogger()->RecordMilestone(
-                        "Color received: alley color red, enemy color blue ["
-                        + std::to_string(*(this->EnemyColorMinHue)) + ","
-                        + std::to_string(*(this->EnemyColorMaxHue)) + "]");
-            } else if (signal.name() == "to_ec_b" || signal.name() == "to_ec_s")
+                *(this->SmallEnergyEnable) = true;
+                *(this->BigEnergyEnable) = false;
+            } else if (signal.name() == "stop_ec" || signal.name() == "to_a")
             {
-                this->Enable = false;
-            } else if (signal.name() == "to_a")
-            {
-                this->Enable = true;
+                *(this->SmallEnergyEnable) = false;
+                *(this->BigEnergyEnable) = false;
             }
         });
     }
@@ -71,7 +71,6 @@ namespace Icarus
     /// Execute the main detection behavior tree.
     void IcarusDetector::OnUpdate()
     {
-//        if (!EnemyColorInitialized) return;
         DetectionBehaviors.Execute();
     }
 }

@@ -17,18 +17,18 @@ namespace Icarus
     {
         InitializeFacilities();
 
-        ContoursWriter = std::make_unique<SharedPicture::PictureWriter>("icarus.contours", 1920 * 1080 * 3);
+        ContoursWriter = std::make_unique<SharedPicture::PictureWriter>("icarus.detector.contours", 1920 * 1080 * 3);
 
-        MainPicture = GetBlackboard()->GetObject<cv::Mat>("MainPicture");
-        Contours = GetBlackboard()->GetObject<
+        MainPicture = GetBlackboard()->GetPointer<cv::Mat>("MainPicture");
+        Contours = GetBlackboard()->GetPointer<
                 tbb::concurrent_vector<ContourElement::Pointer>>("Contours");
-        LightBarLayer = GetBlackboard()->GetObject<Tags::Index>(
+        LightBarLayer = GetBlackboard()->GetPointer<Tags::Index>(
                 "LightBarLayer");
-        LightBarFarLayer = GetBlackboard()->GetObject<Tags::Index>(
+        LightBarFarLayer = GetBlackboard()->GetPointer<Tags::Index>(
                 "LightBarFarLayer");
-        LightBarMediumLayer = GetBlackboard()->GetObject<Tags::Index>(
+        LightBarMediumLayer = GetBlackboard()->GetPointer<Tags::Index>(
                 "LightBarMediumLayer");
-        LightBarNearLayer = GetBlackboard()->GetObject<Tags::Index>(
+        LightBarNearLayer = GetBlackboard()->GetPointer<Tags::Index>(
                 "LightBarNearLayer");
 
         FarChecker.Initialize(GetConfigurator());
