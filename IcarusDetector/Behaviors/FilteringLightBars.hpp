@@ -30,10 +30,10 @@ namespace Icarus
         /// Detected contours.
         tbb::concurrent_vector<ContourElement::Pointer>* Contours;
 
-        Tags::Layer* LightBarLayer;
-        Tags::Layer* LightBarFarLayer;
-        Tags::Layer* LightBarMediumLayer;
-        Tags::Layer* LightBarNearLayer;
+        Tags::Index* LightBarLayer;
+        Tags::Index* LightBarFarLayer;
+        Tags::Index* LightBarMediumLayer;
+        Tags::Index* LightBarNearLayer;
 
         /// Load contour filtering configurations.
         void LoadConfigurations() override;

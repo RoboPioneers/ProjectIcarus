@@ -19,11 +19,11 @@ namespace Icarus
         MainPicture = GetBlackboard()->GetObject<cv::Mat>("MainPicture");
         Contours = GetBlackboard()->GetObject<
                 tbb::concurrent_vector<ContourElement::Pointer>>("Contours");
-        LightBarFarLayer = GetBlackboard()->GetObject<Tags::Layer>(
+        LightBarFarLayer = GetBlackboard()->GetObject<Tags::Index>(
                 "LightBarFarLayer");
-        LightBarMediumLayer = GetBlackboard()->GetObject<Tags::Layer>(
+        LightBarMediumLayer = GetBlackboard()->GetObject<Tags::Index>(
                 "LightBarMediumLayer");
-        LightBarNearLayer = GetBlackboard()->GetObject<Tags::Layer>(
+        LightBarNearLayer = GetBlackboard()->GetObject<Tags::Index>(
                 "LightBarNearLayer");
         FoundTarget = GetBlackboard()->GetObject<std::optional<cv::RotatedRect>>("FoundTarget", std::nullopt);
         HitPoint = GetBlackboard()->GetObject<cv::Point2i>("HitPoint");

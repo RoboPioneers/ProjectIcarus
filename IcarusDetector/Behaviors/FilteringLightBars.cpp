@@ -22,13 +22,13 @@ namespace Icarus
         MainPicture = GetBlackboard()->GetObject<cv::Mat>("MainPicture");
         Contours = GetBlackboard()->GetObject<
                 tbb::concurrent_vector<ContourElement::Pointer>>("Contours");
-        LightBarLayer = GetBlackboard()->GetObject<Tags::Layer>(
+        LightBarLayer = GetBlackboard()->GetObject<Tags::Index>(
                 "LightBarLayer");
-        LightBarFarLayer = GetBlackboard()->GetObject<Tags::Layer>(
+        LightBarFarLayer = GetBlackboard()->GetObject<Tags::Index>(
                 "LightBarFarLayer");
-        LightBarMediumLayer = GetBlackboard()->GetObject<Tags::Layer>(
+        LightBarMediumLayer = GetBlackboard()->GetObject<Tags::Index>(
                 "LightBarMediumLayer");
-        LightBarNearLayer = GetBlackboard()->GetObject<Tags::Layer>(
+        LightBarNearLayer = GetBlackboard()->GetObject<Tags::Index>(
                 "LightBarNearLayer");
 
         FarChecker.Initialize(GetConfigurator());
