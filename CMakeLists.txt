@@ -23,6 +23,7 @@ endif()
 
 add_subdirectory("IcarusDetector")
 add_subdirectory("IcarusChallenger")
+add_subdirectory("SignalSender")
 
 if (WITH_TEST)
 endif()
