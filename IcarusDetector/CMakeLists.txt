@@ -47,6 +47,11 @@ add_executable(${TARGET_NAME}
         ${TARGET_CUDA_SOURCE} ${TARGET_CUDA_HEADER}
         ${PROTO_SOURCES} ${PROTO_HEADERS})
 
+# Set version property.
+set_target_properties(${TARGET_NAME} PROPERTIES
+        VERSION ${TARGET_VERSION}
+        OUTPUT_NAME ${TARGET_NAMESPACE}${TARGET_NAME})
+
 # Enable 'DEBUG' Macro in Debug Mode
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
     target_compile_definitions(${TARGET_NAME} PRIVATE -DDEBUG)
