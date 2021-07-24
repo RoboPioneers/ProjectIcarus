@@ -56,16 +56,22 @@ namespace Icarus
             {
                 *(this->SmallEnergyEnable) = false;
                 *(this->BigEnergyEnable) = true;
+                this->Enable = true;
             } else if (signal.name() == "to_ec_s")
             {
                 *(this->SmallEnergyEnable) = true;
                 *(this->BigEnergyEnable) = false;
+                this->Enable = true;
             } else if (signal.name() == "stop_ec" || signal.name() == "to_a")
             {
                 *(this->SmallEnergyEnable) = false;
                 *(this->BigEnergyEnable) = false;
+                this->Enable = false;
             }
         });
+
+        /// Disabled on initial.
+        this->Enable = false;
     }
 
     /// Finalize the whole behavior tree.
