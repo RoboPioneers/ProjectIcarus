@@ -24,7 +24,7 @@ namespace Icarus
 
         MaskWriter = std::make_unique<Gaia::SharedPicture::PictureWriter>("icarus.challenger.mask",
                                                                           1920 * 1080);
-        Picture = GetBlackboard()->GetPointer<cv::Mat>("main");
+        Picture = GetBlackboard()->GetPointer<cv::Mat>("MainPicture");
         Panel = GetBlackboard()->GetPointer<std::optional<cv::RotatedRect>>("Panel");
         R = GetBlackboard()->GetPointer<cv::Rect>("R");
 
