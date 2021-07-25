@@ -38,7 +38,7 @@ namespace Icarus
         Panel = GetBlackboard()->GetPointer<std::optional<cv::RotatedRect>>("Panel");
         HitPoint = GetBlackboard()->GetPointer<cv::Point2i>("HitPoint");
         HitCommand = GetBlackboard()->GetPointer<int>("HitCommand");
-        ResultWriter = std::make_unique<Gaia::SharedPicture::PictureWriter>("hercules.debug.result",
+        ResultWriter = std::make_unique<Gaia::SharedPicture::PictureWriter>("icarus.challenger.result_b",
                                                                              1920 * 1080 * 3);
         Picture = GetBlackboard()->GetPointer<cv::Mat>("MainPicture");
         LoadConfigurations();

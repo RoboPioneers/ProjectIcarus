@@ -47,7 +47,8 @@ namespace Icarus
                    cv::getStructuringElement(cv::MORPH_DILATE, cv::Size(3,3)));
         std::vector<std::vector<cv::Point>> contours;
         std::vector<cv::Vec4i> hierarchy;
-        cv::findContours(mask, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+        cv::findContours(mask, contours, hierarchy,
+                         cv::RETR_TREE,cv::CHAIN_APPROX_SIMPLE);
 
         DEBUG_BEGIN
         cv::Mat mask_display;

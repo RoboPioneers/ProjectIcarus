@@ -17,7 +17,7 @@ namespace Icarus
         Panel = GetBlackboard()->GetPointer<std::optional<cv::RotatedRect>>("Panel");
         HitPoint = GetBlackboard()->GetPointer<cv::Point2i>("HitPoint");
         HitCommand = GetBlackboard()->GetPointer<int>("HitCommand");
-        ResultWriter = std::make_unique<Gaia::SharedPicture::PictureWriter>("icarus.challenger.result",
+        ResultWriter = std::make_unique<Gaia::SharedPicture::PictureWriter>("icarus.challenger.result_s",
                                                                              1920 * 1080 * 3);
         Picture = GetBlackboard()->GetPointer<cv::Mat>("MainPicture");
         LoadConfigurations();
@@ -130,7 +130,7 @@ namespace Icarus
         HitPoint->x = r_x + static_cast<int>(hit_point_arm_length * std::cos(hit_point_angle_radian));
         HitPoint->y = r_y + static_cast<int>(hit_point_arm_length * std::sin(hit_point_angle_radian));
 
-        #ifdef DEBUG
+        DEBUG_BEGIN
         auto result_picture = Picture->clone();
         // Draw hit point mark.
         cv::circle(result_picture, *HitPoint, 8,
@@ -150,7 +150,7 @@ namespace Icarus
         cv::resize(result_picture, result_picture,
                    cv::Size(result_picture.cols / 2, result_picture.rows / 2));
         ResultWriter->Write(result_picture);
-        #endif
+        DEBUG_END
 
         // Calculate hit point in the turret protocol coordinate.
         *HitCommand = 1;
