@@ -12,11 +12,17 @@ namespace Icarus
         REFLECT_TYPE(Icarus, ProcessorBase)
 
     protected:
-
+        std::unique_ptr<Gaia::SharedPicture::PictureWriter> MaskWriter;
         std::unique_ptr<Gaia::SharedPicture::PictureWriter> RWriter;
 
         /// Template picture of R for template matching.
         cv::Mat TemplatePicture;
+        /// Threshold for mask.
+        int Threshold;
+
+        int RMinLength {18};
+        int RMaxLength {24};
+
         /// Address of the picture to process in the blackboard.
         cv::Mat* Picture {nullptr};
 
