@@ -33,7 +33,8 @@ namespace Icarus
         command.set_yaw(static_cast<float>(HitPoint->x));
         command.set_pitch(static_cast<float>(HitPoint->y));
         command.set_command(*HitCommand);
-
+        command.set_distance(0);
+        command.set_motion_status(0);
         std::string command_bytes;
         command_bytes.resize(command.ByteSize());
         command.SerializeToArray(command_bytes.data(), static_cast<int>(command_bytes.size()));
