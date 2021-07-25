@@ -168,14 +168,15 @@ namespace Icarus
         std::optional<double> best_score = std::nullopt;
         std::optional<cv::RotatedRect> best_armor = std::nullopt;
 
-        cv::Point2f screen_center;
-        screen_center.x = static_cast<float>(MainPicture->cols) / 2;
-        screen_center.y = static_cast<float>(MainPicture->rows) / 2;
+        // The 'center' position to lock.
+        cv::Point2f locking_center;
+        locking_center.x = static_cast<float>(MainPicture->cols) * 0.5f;
+        locking_center.y = static_cast<float>(MainPicture->rows) * 0.618f;
         for (const auto& armor_layer : possible_armors)
         {
             for (const auto& armor : armor_layer)
             {
-                auto delta_position = armor->Rectangle.center - screen_center;
+                auto delta_position = armor->Rectangle.center - locking_center;
                 auto current_score = delta_position.ddot(delta_position);
                 if (!best_score || current_score < *best_score)
                 {
