@@ -49,6 +49,16 @@ namespace Icarus
             *(this->BigEnergyEnable) = false;
             *(this->SmallEnergyEnable) = false;
         });
+        AddCommand("debug", [this](const std::string& content){
+            if (content == "on")
+            {
+                *(this->DebugMode) = true;
+            }
+            else if (content == "off")
+            {
+                *(this->DebugMode) = false;
+            }
+        });
 
         AddSubscription("serial_ports/" + serial_port + "/read",
                         [this](const std::string& content){
@@ -60,16 +70,19 @@ namespace Icarus
             {
                 *(this->SmallEnergyEnable) = false;
                 *(this->BigEnergyEnable) = true;
+                this->GetLogger()->RecordMilestone("Entered big energy mode.");
                 this->Resume();
             } else if (signal.name() == "to_ec_s")
             {
                 *(this->SmallEnergyEnable) = true;
                 *(this->BigEnergyEnable) = false;
+                this->GetLogger()->RecordMilestone("Entered small energy mode.");
                 this->Resume();
             } else if (signal.name() == "stop_ec" || signal.name() == "to_a")
             {
                 *(this->SmallEnergyEnable) = false;
                 *(this->BigEnergyEnable) = false;
+                this->GetLogger()->RecordMilestone("Exit energy mode.");
                 this->Pause();
             }
         });
