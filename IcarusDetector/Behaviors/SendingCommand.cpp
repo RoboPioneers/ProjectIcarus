@@ -19,6 +19,8 @@ namespace Icarus
 
         HitPoint = GetBlackboard()->GetPointer<cv::Point2i>("HitPoint", cv::Point2i());
         HitCommand = GetBlackboard()->GetPointer<int>("HitCommand", 0);
+        HitDistance = GetBlackboard()->GetPointer<double>("HitDistance");
+        MotionStatus = GetBlackboard()->GetPointer<int>("MotionStatus");
 
         LoadConfigurations();
     }
@@ -33,6 +35,8 @@ namespace Icarus
         command.set_yaw(static_cast<float>(HitPoint->x));
         command.set_pitch(static_cast<float>(HitPoint->y));
         command.set_command(*HitCommand);
+        command.set_distance(static_cast<unsigned int>(*HitDistance));
+        command.set_motion_status(*MotionStatus);
 
         std::string command_bytes;
         command_bytes.resize(command.ByteSize());

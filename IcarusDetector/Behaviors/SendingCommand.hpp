@@ -23,6 +23,8 @@ namespace Icarus
 
         cv::Point2i* HitPoint {nullptr};
         int* HitCommand {nullptr};
+        double* HitDistance {nullptr};
+        int* MotionStatus {nullptr};
 
         void OnInitialize() override;
 

@@ -6,6 +6,7 @@
 #include <GaiaSerialIOClient/GaiaSerialIOClient.hpp>
 #include <GaiaCameraClient/GaiaCameraClient.hpp>
 #include <atomic>
+#include <chrono>
 #include "DetectionLayout.hpp"
 
 namespace Icarus
@@ -26,6 +27,9 @@ namespace Icarus
 
         unsigned int* EnemyColorMinHue {nullptr};
         unsigned int* EnemyColorMaxHue {nullptr};
+
+        /// Time point of the last frame.
+        std::chrono::steady_clock::time_point LastFrameTimePoint;
 
     protected:
         /// Behavior tree for detection.

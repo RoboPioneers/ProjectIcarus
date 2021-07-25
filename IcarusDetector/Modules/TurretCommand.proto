@@ -4,4 +4,6 @@ message TurretCommand{
   uint32 command = 1;
   float yaw = 2;
   float pitch = 3;
+  uint32 distance = 4;
+  uint32 motion_status = 5;
 }

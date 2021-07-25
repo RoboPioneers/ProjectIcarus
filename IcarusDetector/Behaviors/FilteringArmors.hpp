@@ -10,6 +10,7 @@
 #include "../Checkers/FarArmorChecker.hpp"
 #include "../Checkers/MediumArmorChecker.hpp"
 #include "../Checkers/NearArmorChecker.hpp"
+#include "../Modules/PnPDistanceEstimator.hpp"
 
 namespace Icarus
 {
@@ -19,7 +20,10 @@ namespace Icarus
 
     private:
         std::unique_ptr<SharedPicture::PictureWriter> ArmorsWriter;
-
+        std::unique_ptr<Modules::PnPDistanceEstimator> BigArmorDistanceEstimator;
+        std::unique_ptr<Modules::PnPDistanceEstimator> SmallArmorDistanceEstimator;
+        /// The length-width ratio to separate big armor and small armor, is 8.0 by default.
+        double ArmorSizeRatioSeparator;
     protected:
 
         unsigned int ArmorMaxLeaningAngle;
@@ -36,6 +40,8 @@ namespace Icarus
 
         cv::Point2i* HitPoint {nullptr};
         int* HitCommand {nullptr};
+        double* HitDistance {nullptr};
+        int* MotionStatus {nullptr};
 
         std::optional<cv::RotatedRect>* FoundTarget;
 

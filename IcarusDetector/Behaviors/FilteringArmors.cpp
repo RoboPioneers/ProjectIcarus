@@ -1,9 +1,22 @@
 #include "FilteringArmors.hpp"
 #include "../Modules/ImageDebugUtility.hpp"
 #include "../Components/PONElement.hpp"
+#include <boost/algorithm/string.hpp>
 
 namespace Icarus
 {
+    std::vector<double> CastStringToDoubleVector(const std::string& text)
+    {
+        std::vector<std::string> element_texts;
+        boost::split(element_texts, text, boost::is_any_of(",;"), boost::token_compress_on);
+        std::vector<double> element_values;
+        element_values.reserve(element_texts.size());
+        for (const auto& value_text : element_texts)
+        {
+            element_values.push_back(std::stod(value_text));
+        }
+        return element_values;
+    }
 
     void FilteringArmors::LoadConfigurations()
     {
@@ -28,9 +41,50 @@ namespace Icarus
         FoundTarget = GetBlackboard()->GetPointer<std::optional<cv::RotatedRect>>("FoundTarget", std::nullopt);
         HitPoint = GetBlackboard()->GetPointer<cv::Point2i>("HitPoint");
         HitCommand = GetBlackboard()->GetPointer<int>("HitCommand");
+        HitDistance = GetBlackboard()->GetPointer<double>("HitDistance", 0);
+        MotionStatus = GetBlackboard()->GetPointer<int>("MotionStatus", 0);
         FarChecker.Initialize(GetConfigurator());
         MediumChecker.Initialize(GetConfigurator());
         NearChecker.Initialize(GetConfigurator());
+
+        auto camera_matrix_string = GetConfigurator()->Get("CameraMatrix");
+        auto distortion_coefficient_string = GetConfigurator()->Get("DistortionCoefficient");
+        ArmorSizeRatioSeparator = GetConfigurator()->Get<double>("ArmorSizeRatioSeparator").value_or(8.0);
+        if (camera_matrix_string.has_value() && distortion_coefficient_string.has_value())
+        {
+            auto camera_matrix_vector = CastStringToDoubleVector(camera_matrix_string.value());
+            auto distortion_coefficient_vector = CastStringToDoubleVector(
+                    distortion_coefficient_string.value());
+
+            if (camera_matrix_vector.size() == 9 && distortion_coefficient_vector.size() == 4)
+            {
+                auto camera_matrix = cv::Mat(camera_matrix_vector);
+                camera_matrix.reshape(0, 3);
+
+                auto distortion_coefficient = cv::Mat(distortion_coefficient_vector);
+                distortion_coefficient.reshape(0, 1);
+
+                static constexpr double BigArmorHalfLength = 23.0 / 2.0;
+                static constexpr double SmallArmorHalfLength = 13.0 / 2.0;
+                static constexpr double ArmorHalfHeight = 5.5 / 2.0;
+                BigArmorDistanceEstimator = std::make_unique<Modules::PnPDistanceEstimator>();
+                BigArmorDistanceEstimator->CameraMatrix = camera_matrix;
+                BigArmorDistanceEstimator->DistortionCoefficient = distortion_coefficient;
+                BigArmorDistanceEstimator->WorldPoints = {
+                        cv::Point3f(-BigArmorHalfLength, -ArmorHalfHeight, 0),
+                        cv::Point3f(-BigArmorHalfLength, ArmorHalfHeight, 0),
+                        cv::Point3f(BigArmorHalfLength, ArmorHalfHeight, 0),
+                        cv::Point3f(BigArmorHalfLength, -ArmorHalfHeight, 0)};
+                SmallArmorDistanceEstimator = std::make_unique<Modules::PnPDistanceEstimator>();
+                SmallArmorDistanceEstimator->CameraMatrix = camera_matrix;
+                SmallArmorDistanceEstimator->DistortionCoefficient = distortion_coefficient;
+                SmallArmorDistanceEstimator->WorldPoints = {
+                        cv::Point3f(-SmallArmorHalfLength, -ArmorHalfHeight, 0),
+                        cv::Point3f(-SmallArmorHalfLength, ArmorHalfHeight, 0),
+                        cv::Point3f(SmallArmorHalfLength, ArmorHalfHeight, 0),
+                        cv::Point3f(SmallArmorHalfLength, -ArmorHalfHeight, 0)};
+            }
+        }
 
         LoadConfigurations();
     }
@@ -44,6 +98,8 @@ namespace Icarus
         HitPoint->x = 0;
         HitPoint->y = 0;
         *HitCommand = 0;
+        *HitDistance = 0;
+        *MotionStatus = 0;
         *FoundTarget = std::nullopt;
 
         std::vector<tbb::concurrent_vector<ContourElement*>> light_bars;
@@ -105,7 +161,6 @@ namespace Icarus
                         default:
                             break;
                     }
-
                 }
             });
         });
@@ -136,6 +191,50 @@ namespace Icarus
             *HitCommand = 1;
             HitPoint->x = static_cast<int>(best_armor->center.x) - static_cast<int>(MainPicture->cols / 2.0);
             HitPoint->y = static_cast<int>(MainPicture->rows / 2.0) -  static_cast<int>(best_armor->center.y);
+
+            if (BigArmorDistanceEstimator && SmallArmorDistanceEstimator)
+            {
+                auto best_armor_feature = Modules::GeometryFeature::Standardize(*best_armor);
+                std::vector<cv::Point2f> camera_points;
+                if (best_armor_feature.Angle > 90)
+                {
+                    camera_points.emplace_back(static_cast<cv::Vec2f>(
+                            static_cast<cv::Point_<float>>(best_armor_feature.Center)) +
+                            best_armor_feature.Vectors.ClockwiseDiagonal);
+                    camera_points.emplace_back(static_cast<cv::Vec2f>(
+                            static_cast<cv::Point_<float>>(best_armor_feature.Center)) +
+                            best_armor_feature.Vectors.AnticlockwiseDiagonal);
+                    camera_points.emplace_back(static_cast<cv::Vec2f>(
+                            static_cast<cv::Point_<float>>(best_armor_feature.Center)) -
+                            best_armor_feature.Vectors.ClockwiseDiagonal);
+                    camera_points.emplace_back(static_cast<cv::Vec2f>(
+                            static_cast<cv::Point_<float>>(best_armor_feature.Center)) -
+                            best_armor_feature.Vectors.AnticlockwiseDiagonal);
+                }
+                else
+                {
+                    camera_points.emplace_back(static_cast<cv::Vec2f>(
+                            static_cast<cv::Point_<float>>(best_armor_feature.Center)) -
+                            best_armor_feature.Vectors.ClockwiseDiagonal);
+                    camera_points.emplace_back(static_cast<cv::Vec2f>(
+                            static_cast<cv::Point_<float>>(best_armor_feature.Center)) -
+                            best_armor_feature.Vectors.AnticlockwiseDiagonal);
+                    camera_points.emplace_back(static_cast<cv::Vec2f>(
+                            static_cast<cv::Point_<float>>(best_armor_feature.Center)) +
+                            best_armor_feature.Vectors.ClockwiseDiagonal);
+                    camera_points.emplace_back(static_cast<cv::Vec2f>(
+                            static_cast<cv::Point_<float>>(best_armor_feature.Center)) +
+                            best_armor_feature.Vectors.AnticlockwiseDiagonal);
+                }
+                if (best_armor_feature.Length / best_armor_feature.Width > ArmorSizeRatioSeparator)
+                {
+                    *HitDistance = BigArmorDistanceEstimator->GetDistance(camera_points);
+                }
+                else
+                {
+                    *HitDistance = SmallArmorDistanceEstimator->GetDistance(camera_points);
+                }
+            }
         }
 
         DEBUG_BEGIN

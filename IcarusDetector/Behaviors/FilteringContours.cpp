@@ -37,7 +37,7 @@ namespace Icarus
 
         DilateFilter = cv::cuda::createMorphologyFilter(
                 cv::MORPH_DILATE, CV_8U, cv::getStructuringElement(cv::MORPH_RECT,
-                                                                   cv::Size(15, 15)));
+                                                                   cv::Size(3, 9)));
         MaskWriter =
                 std::make_unique<Gaia::SharedPicture::PictureWriter>("icarus.detector.mask", 1920 * 1080 * 3);
     }

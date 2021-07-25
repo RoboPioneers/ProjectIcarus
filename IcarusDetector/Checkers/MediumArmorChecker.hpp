@@ -17,6 +17,11 @@ namespace Icarus
     protected:
         bool CheckPattern(PONElement *candidate) override
         {
+            if (candidate->Feature.Length - candidate->ContourA->Feature.Width
+                - candidate->ContourB->Feature.Width <
+                std::max({candidate->ContourA->Feature.Width, candidate->ContourB->Feature.Width}))
+                return false;
+
             if (std::fabs(candidate->ContourA->Feature.Angle - 90.0) > MaxLeaningAngle ||
                 std::fabs(candidate->ContourB->Feature.Angle - 90.0) > MaxLeaningAngle)
                 return false;

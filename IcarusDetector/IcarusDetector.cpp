@@ -1,6 +1,7 @@
 #include "IcarusDetector.hpp"
 #include "Modules/GeneralMessageTranslator.hpp"
 #include "Signal.pb.h"
+#include <thread>
 
 namespace Icarus
 {
@@ -42,6 +43,17 @@ namespace Icarus
 
         auto serial_port = GetConfigurator()->Get<std::string>("SerialPort").value_or("ttyTHS2");
 
+        AddCommand("debug", [this](const std::string& content){
+            if (content == "on")
+            {
+                *(this->DebugMode) = true;
+            }
+            else if (content == "off")
+            {
+                *(this->DebugMode) = false;
+            }
+        });
+
         AddSubscription("serial_ports/" + serial_port + "/read",
                         [this](const std::string& content){
             auto [id, package] = Modules::GeneralMessageTranslator::Decode(content);
@@ -75,6 +87,7 @@ namespace Icarus
                 this->Resume();
                 GetLogger()->RecordMilestone("Switch back to back assistant mode.");
             }
+            LastFrameTimePoint = std::chrono::steady_clock::now();
         });
     }
 
@@ -87,6 +100,17 @@ namespace Icarus
     /// Execute the main detection behavior tree.
     void IcarusDetector::OnUpdate()
     {
+        auto current_time = std::chrono::steady_clock::now();
+
+        // Suppress frequency to approximately 130 fps.
+        if (current_time < LastFrameTimePoint + std::chrono::microseconds(7692))
+        {
+            std::this_thread::sleep_for(std::chrono::microseconds(7692) -
+                std::chrono::duration_cast<std::chrono::microseconds>(current_time - LastFrameTimePoint));
+        }
+        current_time = std::chrono::steady_clock::now();
+        LastFrameTimePoint = current_time;
+
         if (!EnemyColorInitialized) return;
         DetectionBehaviors.Execute();
     }
