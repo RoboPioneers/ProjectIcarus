@@ -17,7 +17,11 @@ namespace Icarus
     protected:
         bool CheckPattern(ContourElement *candidate) override
         {
+            if (candidate->Feature.Length < 3 || candidate->Feature.Width < 2)
+                return false;
             if (candidate->Feature.Length - candidate->Feature.Width > 6)
+                return false;
+            if (candidate->Rectangle.center.y < 240)
                 return false;
             return true;
         }

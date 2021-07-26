@@ -15,6 +15,8 @@ namespace Icarus
     protected:
         bool CheckPattern(ContourElement *candidate) override
         {
+            if (candidate->Rectangle.center.y < 240)
+                return false;
             return true;
         }
     };
