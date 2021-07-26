@@ -103,10 +103,10 @@ namespace Icarus
 
         if (r_position)
         {
-            R->value().x = r_position->x + search_area.x + R->value().width / 2;
-            R->value().y = r_position->y + search_area.y + R->value().height / 2;
             R->value().width = TemplatePicture.cols;
             R->value().height = TemplatePicture.rows;
+            R->value().x = r_position->x + search_area.x + R->value().width / 2;
+            R->value().y = r_position->y + search_area.y + R->value().height / 2;
         }
         else
         {
