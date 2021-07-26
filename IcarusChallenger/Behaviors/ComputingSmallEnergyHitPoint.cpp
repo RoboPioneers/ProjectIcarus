@@ -13,7 +13,7 @@ namespace Icarus
     {
         InitializeFacilities();
 
-        R = GetBlackboard()->GetPointer<cv::Rect>("R");
+        R = GetBlackboard()->GetPointer<std::optional<cv::Rect>>("R");
         Panel = GetBlackboard()->GetPointer<std::optional<cv::RotatedRect>>("Panel");
         HitPoint = GetBlackboard()->GetPointer<cv::Point2i>("HitPoint");
         HitCommand = GetBlackboard()->GetPointer<int>("HitCommand");
@@ -37,7 +37,7 @@ namespace Icarus
         HitPoint->x = 0;
         HitPoint->y = 0;
 
-        if (!Panel->has_value())
+        if (!R->has_value() || !Panel->has_value())
         {
             return BehaviorTree::Result::Failure;
         }
@@ -54,8 +54,8 @@ namespace Icarus
 
         auto panel_x = (*Panel)->center.x;
         auto panel_y = (*Panel)->center.y;
-        auto r_x = R->x;
-        auto r_y = R->y;
+        auto r_x = R->value().x;
+        auto r_y = R->value().y;
         double delta_x = panel_x - static_cast<float>(r_x);
         double delta_y = panel_y - static_cast<float>(r_y);
         double distance = std::sqrt(delta_x * delta_x + delta_y * delta_y);
@@ -141,10 +141,10 @@ namespace Icarus
         cv::line(result_picture, lp, rp, cv::Scalar(0, 255, 0), 2);
         cv::line(result_picture, up, bp, cv::Scalar(0, 255, 0), 2);
         // Draw the position of R.
-        cv::circle(result_picture, cv::Point(R->x, R->y), 3,
+        cv::circle(result_picture, cv::Point(R->value().x, R->value().y), 3,
                    cv::Scalar(0, 255, 0), 2);
         // Draw the expectation circle
-        cv::circle(result_picture, cv::Point(R->x, R->y), static_cast<int>(distance),
+        cv::circle(result_picture, cv::Point(R->value().x, R->value().y), static_cast<int>(distance),
                    cv::Scalar(0, 200), 2);
         // Shrink the size of the picture.
         cv::resize(result_picture, result_picture,

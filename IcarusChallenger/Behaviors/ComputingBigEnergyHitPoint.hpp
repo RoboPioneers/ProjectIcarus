@@ -17,7 +17,7 @@ namespace Icarus
         std::unique_ptr<Gaia::SharedPicture::PictureWriter> ResultWriter;
 
         cv::Mat* Picture;
-        cv::Rect* R {nullptr};
+        std::optional<cv::Rect>* R {nullptr};
         std::optional<cv::RotatedRect>* Panel {nullptr};
         cv::Point2i* HitPoint {nullptr};
         int* HitCommand {nullptr};

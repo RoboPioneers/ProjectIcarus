@@ -26,7 +26,7 @@ namespace Icarus
         /// Read a picture.
         BehaviorTree::Result OnExecute() override
         {
-            *MainPicture = cv::imread("6.5m.1.bmp");
+            *MainPicture = cv::imread("Test.png");
             return BehaviorTree::Result::Success;
         }
     };

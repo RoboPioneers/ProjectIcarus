@@ -8,6 +8,8 @@ namespace Icarus
     {
         auto template_path = GetConfigurator()->Get("RTemplate").value_or("RTemplate.png");
         TemplatePicture = cv::imread(template_path);
+        if (TemplatePicture.empty())
+            throw std::runtime_error("R template picture " + template_path + " does not exist.");
         cv::cvtColor(TemplatePicture, TemplatePicture, cv::COLOR_BGR2GRAY);
         GetLogger()->RecordMessage("Template picture loaded from " + template_path);
 
@@ -26,7 +28,7 @@ namespace Icarus
                                                                           1920 * 1080);
         RWriter = std::make_unique<Gaia::SharedPicture::PictureWriter>("icarus.challenger.r",
                                                                        1920 * 1080 * 3);
-        R = GetBlackboard()->GetPointer<std::optional<cv::Rect>>("R");
+        R = GetBlackboard()->GetPointer<std::optional<cv::Rect>>("R", std::nullopt);
         Picture = GetBlackboard()->GetPointer<cv::Mat>("MainPicture");
 
         if (!Picture) return;
@@ -72,7 +74,7 @@ namespace Icarus
         std::vector<std::vector<cv::Point>> contours;
         std::vector<cv::Vec4i> hierarchy;
         cv::findContours(mask, contours, hierarchy,
-                         cv::RETR_EXTERNAL,cv::CHAIN_APPROX_SIMPLE);
+                         cv::RETR_TREE,cv::CHAIN_APPROX_SIMPLE);
 
         std::optional<cv::Point> r_position = std::nullopt;
         std::optional<double> r_score = std::nullopt;
@@ -103,6 +105,7 @@ namespace Icarus
 
         if (r_position)
         {
+            R->emplace();
             R->value().width = TemplatePicture.cols;
             R->value().height = TemplatePicture.rows;
             R->value().x = r_position->x + search_area.x + R->value().width / 2;
@@ -136,6 +139,8 @@ namespace Icarus
             display_rectangle = Modules::RectangleTool::GetSafeRectangle(display_rectangle, Picture->size());
             cv::rectangle(r_display_picture, display_rectangle, cv::Scalar(0, 255, 0), 2);
         }
+        cv::drawContours(r_display_picture, contours, -1,
+                         cv::Scalar(255, 0, 0));
         cv::resize(r_display_picture, r_display_picture, r_display_picture.size() / 2);
         RWriter->Write(r_display_picture);
         DEBUG_END

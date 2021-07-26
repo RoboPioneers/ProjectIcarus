@@ -87,7 +87,7 @@ namespace Icarus
             }
         });
 
-        /// Disabled on initial.
+        // Disabled on initial.
         this->Pause();
     }
 
