@@ -9,10 +9,10 @@ namespace Gaia::Modules
     {
     public:
         std::vector<cv::Point3d> WorldPoints;
-        cv::Mat CameraMatrix;
-        cv::Mat DistortionCoefficient;
+        cv::Mat_<double> CameraMatrix;
+        cv::Mat_<double> DistortionCoefficient;
 
         /// Get estimated distance according to the camera points.
-        [[nodiscard]] float GetDistance(const std::vector<cv::Point2f>& camera_points) const;
+        [[nodiscard]] double GetDistance(const std::vector<cv::Point2d>& camera_points) const;
     };
 }

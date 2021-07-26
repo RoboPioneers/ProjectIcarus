@@ -21,6 +21,7 @@ namespace Icarus
     {
     public:
         CONTAINER_BEGIN(Containers::Sequence, upper_sequence)
+//            BEHAVIOR(ReadingPicture, reading_camera, {"Behavior"}, "2.5m.bmp")
             BEHAVIOR(ReadingCamera, reading_camera)
             BEHAVIOR(FilteringArea, filtering_area)
             BEHAVIOR(FilteringContours, filtering_contours)
