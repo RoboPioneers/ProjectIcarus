@@ -9,7 +9,6 @@ namespace Gaia::Modules
     {
         cv::Mat rotation_vector = cv::Mat::zeros(3, 1, CV_64FC1);
         cv::Mat translation_vector = cv::Mat::zeros(3, 1, CV_64FC1);
-        cv::Mat_<float> rotation_matrix,translation_matrix;
         solvePnP(WorldPoints, camera_points,
                  CameraMatrix, DistortionCoefficient,
                  rotation_vector, translation_vector,

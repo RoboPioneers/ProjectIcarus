@@ -59,10 +59,10 @@ namespace Icarus
             if (camera_matrix_vector.size() == 9 && distortion_coefficient_vector.size() == 4)
             {
                 auto camera_matrix = cv::Mat(camera_matrix_vector);
-                camera_matrix.reshape(0, 3);
+                camera_matrix = camera_matrix.reshape(0, 3);
 
                 auto distortion_coefficient = cv::Mat(distortion_coefficient_vector);
-                distortion_coefficient.reshape(0, 1);
+                distortion_coefficient = distortion_coefficient.reshape(0, 1);
 
                 static constexpr double BigArmorHalfLength = 23.0 / 2.0;
                 static constexpr double SmallArmorHalfLength = 13.0 / 2.0;
