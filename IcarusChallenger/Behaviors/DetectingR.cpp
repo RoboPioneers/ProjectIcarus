@@ -91,6 +91,9 @@ namespace Icarus
                     bounding_box,2.0, 2.0);
             bounding_box = Modules::RectangleTool::GetSafeRectangle(
                     bounding_box, search_area.size());
+            if (bounding_box.width < TemplatePicture.cols ||
+                bounding_box.height < TemplatePicture.rows)
+                continue;
             cv::Mat match_score;
             cv::matchTemplate(gray_picture(bounding_box), TemplatePicture,
                               match_score, cv::TM_CCORR);
@@ -99,18 +102,20 @@ namespace Icarus
             cv::minMaxLoc(match_score, &min_value, &max_value, &min_position, &max_position);
             if (!r_score || *r_score < max_value)
             {
+                max_position.x += bounding_box.x;
+                max_position.y += bounding_box.y;
                 r_position = max_position;
                 r_score = max_value;
             }
         }
 
-        if (r_position)
+        if (r_position.has_value())
         {
             cv::Rect r;
             r.width = TemplatePicture.cols;
             r.height = TemplatePicture.rows;
-            r.x = r_position->x + search_area.x + R->value().width / 2;
-            r.y = r_position->y + search_area.y + R->value().height / 2;
+            r.x = r_position->x + search_area.x + r.width / 2;
+            r.y = r_position->y + search_area.y + r.height / 2;
             *R = r;
         }
         else
