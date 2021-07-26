@@ -2,6 +2,7 @@
 
 #include "../Framework/ProcessorBase.hpp"
 #include <opencv2/opencv.hpp>
+#include <utility>
 
 namespace Icarus
 {
@@ -15,6 +16,8 @@ namespace Icarus
         /// Main picture in the blackboard.
         cv::Mat* MainPicture {nullptr};
 
+        std::string PictureName;
+
         /// Initialize camera facilities.
         void OnInitialize() override
         {
@@ -26,8 +29,14 @@ namespace Icarus
         /// Read a picture.
         BehaviorTree::Result OnExecute() override
         {
-            *MainPicture = cv::imread("6.5m.1.bmp");
+            *MainPicture = cv::imread(PictureName);
             return BehaviorTree::Result::Success;
         }
+
+    public:
+        ReadingPicture(Behavior *parent_behavior, const std::unordered_set<std::string>& type_names,
+                       std::string picture_name) : ProcessorBase(parent_behavior, type_names),
+                       PictureName(std::move(picture_name))
+        {}
     };
 }

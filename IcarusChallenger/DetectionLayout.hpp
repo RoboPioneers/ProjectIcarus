@@ -22,6 +22,7 @@ namespace Icarus
     {
     public:
         CONTAINER_BEGIN(Containers::Sequence, upper_sequence)
+//            BEHAVIOR(ReadingPicture, reading_camera, {"Behavior"}, "Test.png")
             BEHAVIOR(ReadingCamera, reading_camera)
             DECORATOR_BEGIN(Decorators::ForceResult<Result::Success>, detection_decorator)
                 CONTAINER_BEGIN(Containers::Sequence, detection_sequence)
