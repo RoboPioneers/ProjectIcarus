@@ -66,6 +66,7 @@ namespace Icarus
             if (search_area.y + search_area.height > Picture->rows)
                 search_area.height = Picture->rows - search_area.y;
         }
+        *R = std::nullopt;
 
         cv::Mat gray_picture, match_scores, mask;
         gray_picture = (*Picture)(search_area);
@@ -105,11 +106,12 @@ namespace Icarus
 
         if (r_position)
         {
-            R->emplace();
-            R->value().width = TemplatePicture.cols;
-            R->value().height = TemplatePicture.rows;
-            R->value().x = r_position->x + search_area.x + R->value().width / 2;
-            R->value().y = r_position->y + search_area.y + R->value().height / 2;
+            cv::Rect r;
+            r.width = TemplatePicture.cols;
+            r.height = TemplatePicture.rows;
+            r.x = r_position->x + search_area.x + R->value().width / 2;
+            r.y = r_position->y + search_area.y + R->value().height / 2;
+            *R = r;
         }
         else
         {
@@ -117,12 +119,15 @@ namespace Icarus
         }
 
         DEBUG_BEGIN
-        GetInspector()->UpdateValue("R", std::to_string(R->value().x + R->value().width / 2) + ","
-                                         + std::to_string(R->value().y + R->value().height / 2));
-        GetInspector()->UpdateValue("R_similarity", std::to_string(r_score.value()));
+        if (R->has_value())
+        {
+            GetInspector()->UpdateValue("R", std::to_string(R->value().x + R->value().width / 2) + ","
+                                             + std::to_string(R->value().y + R->value().height / 2));
+            GetInspector()->UpdateValue("R_similarity", std::to_string(r_score.value()));
+        }
         DEBUG_END
 
-        if (r_score.value() < 0.6)
+        if (r_score && r_score.value() < 0.6)
         {
             GetLogger()->RecordMessage("Can not found R, similarity " + std::to_string(r_score.value()));
             *R = std::nullopt;
