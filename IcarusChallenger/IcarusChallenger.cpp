@@ -37,18 +37,6 @@ namespace Icarus
 
         auto serial_port = GetConfigurator()->Get<std::string>("SerialPort").value_or("ttyTHS2");
 
-        AddCommand("to_ec_b", [this](const std::string& content){
-            *(this->BigEnergyEnable) = true;
-            *(this->SmallEnergyEnable) = false;
-        });
-        AddCommand("to_ec_s", [this](const std::string& content){
-            *(this->BigEnergyEnable) = false;
-            *(this->SmallEnergyEnable) = true;
-        });
-        AddCommand("stop_ec", [this](const std::string& content){
-            *(this->BigEnergyEnable) = false;
-            *(this->SmallEnergyEnable) = false;
-        });
         AddCommand("debug", [this](const std::string& content){
             if (content == "on")
             {
