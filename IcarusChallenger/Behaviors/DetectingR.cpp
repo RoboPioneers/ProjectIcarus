@@ -10,8 +10,6 @@ namespace Icarus
         TemplatePicture = cv::imread(template_path);
         cv::cvtColor(TemplatePicture, TemplatePicture, cv::COLOR_BGR2GRAY);
         GetLogger()->RecordMessage("Template picture loaded from " + template_path);
-        R->width = TemplatePicture.cols;
-        R->height = TemplatePicture.rows;
 
         // Template size is 22.
         RMinLength = GetConfigurator()->Get<int>("RMinLength").value_or(11);
@@ -28,8 +26,7 @@ namespace Icarus
                                                                           1920 * 1080);
         RWriter = std::make_unique<Gaia::SharedPicture::PictureWriter>("icarus.challenger.r",
                                                                        1920 * 1080 * 3);
-        R = GetBlackboard()->GetPointer<cv::Rect>("R");
-        Panel = GetBlackboard()->GetPointer<std::optional<cv::RotatedRect>>("Panel", std::nullopt);
+        R = GetBlackboard()->GetPointer<std::optional<cv::Rect>>("R");
         Picture = GetBlackboard()->GetPointer<cv::Mat>("MainPicture");
 
         if (!Picture) return;
@@ -50,13 +47,13 @@ namespace Icarus
         search_area.height = Picture->rows;
 
         // Only use ROI when previous R and Panel found.
-        if (PreviousRFound)
+        if (R->has_value())
         {
             static constexpr int search_area_ratio = 10;
             search_area.width = TemplatePicture.cols * search_area_ratio;
             search_area.height = TemplatePicture.rows * search_area_ratio;
-            search_area.x = R->x - (search_area.width - TemplatePicture.cols) / 2;
-            search_area.y = R->y - (search_area.height - TemplatePicture.rows) / 2;
+            search_area.x = R->value().x - (search_area.width - TemplatePicture.cols) / 2;
+            search_area.y = R->value().y - (search_area.height - TemplatePicture.rows) / 2;
 
             if (search_area.x < 0) search_area.x = 0;
             if (search_area.x >= Picture->cols) search_area.x = Picture->cols - 100;
@@ -104,35 +101,46 @@ namespace Icarus
             }
         }
 
-        R->x = r_position->x + search_area.x + R->width / 2;
-        R->y = r_position->y + search_area.y + R->height / 2;
+        if (r_position)
+        {
+            R->value().x = r_position->x + search_area.x + R->value().width / 2;
+            R->value().y = r_position->y + search_area.y + R->value().height / 2;
+            R->value().width = TemplatePicture.cols;
+            R->value().height = TemplatePicture.rows;
+        }
+        else
+        {
+            *R = std::nullopt;
+        }
 
         DEBUG_BEGIN
-        GetInspector()->UpdateValue("R", std::to_string(R->x + R->width / 2) + ","
-                                         + std::to_string(R->y + R->height / 2));
+        GetInspector()->UpdateValue("R", std::to_string(R->value().x + R->value().width / 2) + ","
+                                         + std::to_string(R->value().y + R->value().height / 2));
         GetInspector()->UpdateValue("R_similarity", std::to_string(r_score.value()));
         DEBUG_END
 
         if (r_score.value() < 0.6)
         {
             GetLogger()->RecordMessage("Can not found R, similarity " + std::to_string(r_score.value()));
-            PreviousRFound = false;
+            *R = std::nullopt;
             return BehaviorTree::Result::Failure;
         }
 
-        PreviousRFound = true;
-
         DEBUG_BEGIN
         cv::Mat r_display_picture = Picture->clone();
-        cv::Rect display_rectangle = *R;
-        display_rectangle.x -= display_rectangle.width / 2;
-        display_rectangle.y -= display_rectangle.height / 2;
-        display_rectangle = Modules::RectangleTool::GetSafeRectangle(display_rectangle, Picture->size());
-        cv::rectangle(r_display_picture, display_rectangle, cv::Scalar(0, 255, 0), 2);
+        if (R->has_value())
+        {
+            cv::Rect display_rectangle = R->value();
+            display_rectangle.x -= display_rectangle.width / 2;
+            display_rectangle.y -= display_rectangle.height / 2;
+            display_rectangle = Modules::RectangleTool::GetSafeRectangle(display_rectangle, Picture->size());
+            cv::rectangle(r_display_picture, display_rectangle, cv::Scalar(0, 255, 0), 2);
+        }
         cv::resize(r_display_picture, r_display_picture, r_display_picture.size() / 2);
         RWriter->Write(r_display_picture);
         DEBUG_END
 
+        if (!R->has_value()) return BehaviorTree::Result::Failure;
         return BehaviorTree::Result::Success;
     }
 

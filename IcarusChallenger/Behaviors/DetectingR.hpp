@@ -26,10 +26,7 @@ namespace Icarus
         /// Address of the picture to process in the blackboard.
         cv::Mat* Picture {nullptr};
 
-        cv::Rect* R {nullptr};
-        std::optional<cv::RotatedRect>* Panel {nullptr};
-
-        bool PreviousRFound {false};
+        std::optional<cv::Rect>* R {nullptr};
 
         /// Load contour filtering configurations.
         void LoadConfigurations() override;

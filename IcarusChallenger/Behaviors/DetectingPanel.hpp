@@ -24,7 +24,7 @@ namespace Icarus
         cv::Mat* Picture {nullptr};
 
         std::optional<cv::RotatedRect>* Panel {nullptr};
-        cv::Rect* R {nullptr};
+        std::optional<cv::Rect>* R {nullptr};
 
         /// Load contour filtering configurations.
         void LoadConfigurations() override;

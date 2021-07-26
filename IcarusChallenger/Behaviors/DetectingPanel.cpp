@@ -26,7 +26,7 @@ namespace Icarus
                                                                           1920 * 1080);
         Picture = GetBlackboard()->GetPointer<cv::Mat>("MainPicture");
         Panel = GetBlackboard()->GetPointer<std::optional<cv::RotatedRect>>("Panel");
-        R = GetBlackboard()->GetPointer<cv::Rect>("R");
+        R = GetBlackboard()->GetPointer<std::optional<cv::Rect>>("R");
 
         LoadConfigurations();
     }
@@ -37,6 +37,8 @@ namespace Icarus
         DEBUG_BEGIN
         CheckReloadConfiguration();
         DEBUG_END
+
+        if (!R->has_value()) return BehaviorTree::Result::Failure;
 
         cv::Mat mask;
         cv::Mat gray_picture;
@@ -81,8 +83,8 @@ namespace Icarus
             }
 
             // R Check.
-            auto r_center_x = R->x + R->width / 2;
-            auto r_center_y = R->y + R->height / 2;
+            auto r_center_x = R->value().x + R->value().width / 2;
+            auto r_center_y = R->value().y + R->value().height / 2;
             auto target_center_x = rotated_rectangle.center.x;
             auto target_center_y = rotated_rectangle.center.y;
             auto delta_x = target_center_x - static_cast<float>(r_center_x);
