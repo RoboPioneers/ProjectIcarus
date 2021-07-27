@@ -10,6 +10,7 @@
 #include "Behaviors/SendingCommand.hpp"
 #include "Behaviors/DisplayingPicture.hpp"
 #include "Behaviors/ReadingPicture.hpp"
+#include "Behaviors/ReadingPictures.hpp"
 
 #include <atomic>
 
@@ -21,8 +22,11 @@ namespace Icarus
     {
     public:
         CONTAINER_BEGIN(Containers::Sequence, upper_sequence)
-//            BEHAVIOR(ReadingPicture, reading_camera, {"Behavior"}, "2.5m.bmp")
+            #ifdef OFFLINE
+            BEHAVIOR(ReadingPictures, reading_pictures, {"Behavior"}, "Pictures/")
+            #else
             BEHAVIOR(ReadingCamera, reading_camera)
+            #endif
             BEHAVIOR(FilteringArea, filtering_area)
             BEHAVIOR(FilteringContours, filtering_contours)
             BEHAVIOR(FilteringLightBars, filtering_light_bars)

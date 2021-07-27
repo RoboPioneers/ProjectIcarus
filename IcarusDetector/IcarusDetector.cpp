@@ -17,12 +17,14 @@ namespace Icarus
         Inspector = std::make_unique<Gaia::InspectionService::InspectionClient>(Name, GetConnection());
         auto camera_type = GetConfigurator()->Get<std::string>("CameraType").value_or("*");
         auto camera_index = GetConfigurator()->Get<unsigned int>("CameraIndex").value_or(0);
+        #ifndef OFFLINE
         CameraClient = std::make_shared<Gaia::CameraService::CameraClient>(camera_type, camera_index,
                                                                            GetConnection());
         auto camera_exposure = GetConfigurator()->Get<unsigned int>("Exposure").value_or(2500);
         auto camera_gain = GetConfigurator()->Get<unsigned int>("Gain").value_or(16);
         CameraClient->SetExposure(camera_exposure);
         CameraClient->SetGain(camera_gain);
+        #endif
         auto context = std::make_shared<Gaia::Blackboards::Blackboard>();
 
         context->GetPointer<std::shared_ptr<sw::redis::Redis>>("Connection", GetConnection());
@@ -38,6 +40,10 @@ namespace Icarus
         {
             *DebugMode = true;
         }
+
+        #ifdef OFFLINE
+        *DebugMode = true;
+        #endif
 
         DetectionBehaviors.Initialize(context);
 
@@ -117,9 +123,11 @@ namespace Icarus
 
     void IcarusDetector::OnResume()
     {
+        #ifndef OFFLINE
         auto camera_exposure = GetConfigurator()->Get<unsigned int>("Exposure").value_or(2500);
         auto camera_gain = GetConfigurator()->Get<unsigned int>("Gain").value_or(16);
         CameraClient->SetExposure(camera_exposure);
         CameraClient->SetGain(camera_gain);
+        #endif
     }
 }

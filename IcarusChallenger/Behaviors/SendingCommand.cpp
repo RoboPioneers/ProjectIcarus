@@ -14,7 +14,7 @@ namespace Icarus
                 ->GetPointer<std::shared_ptr<sw::redis::Redis>>(
                         "Connection");
         Serial = std::make_unique<Gaia::SerialIO::SerialClient>(
-                GetConfigurator()->Get("SerialName").value_or("ttyTHS2"),
+                GetConfigurator()->Get("SerialPort").value_or("ttyTHS2"),
                 *connection);
 
         HitPoint = GetBlackboard()->GetPointer<cv::Point2i>("HitPoint", cv::Point2i());

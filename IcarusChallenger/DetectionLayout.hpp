@@ -6,6 +6,7 @@
 #include "Behaviors/SendingCommand.hpp"
 #include "Behaviors/DisplayingPicture.hpp"
 #include "Behaviors/ReadingPicture.hpp"
+#include "Behaviors/ReadingPictures.hpp"
 #include "Behaviors/DetectingR.hpp"
 #include "Behaviors/DetectingPanel.hpp"
 #include "Behaviors/ComputingSmallEnergyHitPoint.hpp"
@@ -22,8 +23,11 @@ namespace Icarus
     {
     public:
         CONTAINER_BEGIN(Containers::Sequence, upper_sequence)
-//            BEHAVIOR(ReadingPicture, reading_camera, {"Behavior"}, "Test.png")
+            #ifdef OFFLINE
+            BEHAVIOR(ReadingPictures, reading_pictures, {"Behavior"}, "Pictures/")
+            #else
             BEHAVIOR(ReadingCamera, reading_camera)
+            #endif
             DECORATOR_BEGIN(Decorators::ForceResult<Result::Success>, detection_decorator)
                 CONTAINER_BEGIN(Containers::Sequence, detection_sequence)
                     BEHAVIOR(DetectingR, detecting_R);

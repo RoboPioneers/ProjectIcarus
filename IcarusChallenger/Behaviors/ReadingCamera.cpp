@@ -1,5 +1,6 @@
 #include "ReadingCamera.hpp"
 #include <GaiaExceptions/GaiaExceptions.hpp>
+#include <boost/filesystem.hpp>
 
 namespace Icarus
 {
@@ -19,6 +20,22 @@ namespace Icarus
         CameraReader = std::make_shared<Gaia::CameraService::CameraReader>(
                 CameraClient->GetReader(vision_name));
         LastMeasuringTime = std::chrono::system_clock::now();
+
+        using namespace boost;
+        if (!filesystem::exists(RecordsSavePath))
+        {
+            filesystem::create_directories(RecordsSavePath);
+        }
+
+        auto records_end = filesystem::directory_iterator();
+        for (auto records_iterator = filesystem::directory_iterator(RecordsSavePath);
+            records_iterator != records_end; ++records_iterator)
+        {
+            ++RecordsSaveIndex;
+        }
+        ++RecordsSaveIndex;
+        GetLogger()->RecordMessage("Save records from index: " + std::to_string(RecordsSaveIndex));
+        LastRecordingTime = std::chrono::system_clock::now();
     }
 
     Gaia::BehaviorTree::Result ReadingCamera::OnExecute()
@@ -42,6 +59,15 @@ namespace Icarus
         ++AccumulatedFramesCount;
 
         *MainPicture = CameraReader->Read();
+
+        if (current_time - LastRecordingTime > std::chrono::seconds (2))
+        {
+            cv::imwrite(RecordsSavePath + "/Record_" + std::to_string(RecordsSaveIndex) + ".png",
+                        *MainPicture);
+            ++RecordsSaveIndex;
+            LastRecordingTime = current_time;
+        }
+
         return BehaviorTree::Result::Success;
     }
 }

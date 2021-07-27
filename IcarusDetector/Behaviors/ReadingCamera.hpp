@@ -14,9 +14,13 @@ namespace Icarus
     private:
         /// Time point of last FPS measuring.
         std::chrono::system_clock::time_point LastMeasuringTime;
+        /// Time point of last recording pictures.
+        std::chrono::system_clock::time_point LastRecordingTime;
         /// Accumulated frames counter from last FPS measuring.
         unsigned int AccumulatedFramesCount {0};
 
+        std::string RecordsSavePath {"./Pictures/IcarusDetector/"};
+        unsigned long long RecordsSaveIndex {0};
     protected:
 
         /// Main picture in the blackboard.

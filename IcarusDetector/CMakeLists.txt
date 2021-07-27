@@ -57,6 +57,10 @@ if(CMAKE_BUILD_TYPE STREQUAL Debug)
     target_compile_definitions(${TARGET_NAME} PRIVATE -DDEBUG)
 endif()
 
+if(OFFLINE_MODE)
+    target_compile_definitions(${TARGET_NAME} PRIVATE -DOFFLINE)
+endif()
+
 #==============================
 # Dependencies
 #==============================
@@ -123,9 +127,9 @@ target_include_directories(${TARGET_NAME} PRIVATE ${TBB_INCLUDE})
 target_link_libraries(${TARGET_NAME} PRIVATE ${TBB_LIB})
 
 # Boost
-find_package(Boost 1.65 REQUIRED COMPONENTS system program_options stacktrace_backtrace)
+find_package(Boost 1.65 REQUIRED COMPONENTS system filesystem program_options stacktrace_backtrace)
 target_include_directories(${TARGET_NAME} PUBLIC ${Boost_INCLUDE_DIRS})
-target_link_libraries(${TARGET_NAME} PRIVATE Boost::system Boost::program_options Boost::stacktrace_backtrace)
+target_link_libraries(${TARGET_NAME} PRIVATE ${Boost_LIBRARIES})
 
 # redis-plus-plus
 find_path(REDIS_INCLUDE_DIRS "sw")
