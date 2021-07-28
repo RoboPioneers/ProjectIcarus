@@ -14,6 +14,7 @@ namespace Icarus
         auto camera_type = GetConfigurator()->Get<std::string>("CameraType").value_or("*");
         auto camera_index = GetConfigurator()->Get<unsigned int>("CameraIndex").value_or(0);
         auto vision_name = GetConfigurator()->Get<std::string>("VisionName").value_or("main");
+        RecordEnable = GetConfigurator()->Get<bool>("RecordEnable").value_or(false);
 
         CameraClient = std::make_shared<Gaia::CameraService::CameraClient>(camera_type, camera_index,
                                                                            GetConnection());
@@ -29,7 +30,7 @@ namespace Icarus
 
         auto records_end = filesystem::directory_iterator();
         for (auto records_iterator = filesystem::directory_iterator(RecordsSavePath);
-            records_iterator != records_end; ++records_iterator)
+        records_iterator != records_end; ++records_iterator)
         {
             ++RecordsSaveIndex;
         }
@@ -46,7 +47,7 @@ namespace Icarus
         {
             auto fps = static_cast<double>(AccumulatedFramesCount) / static_cast<double>(
                     std::chrono::duration_cast<std::chrono::milliseconds>(current_time - LastMeasuringTime).count())
-                    * 1000;
+                            * 1000;
             AccumulatedFramesCount = 0;
             GetLogger()->RecordMessage("FPS: " + std::to_string(fps));
             LastMeasuringTime = current_time;
@@ -60,10 +61,9 @@ namespace Icarus
 
         *MainPicture = CameraReader->Read();
 
-        if (current_time - LastRecordingTime > std::chrono::seconds (2))
+        if (RecordEnable && current_time - LastRecordingTime > std::chrono::seconds(2))
         {
-            cv::imwrite(RecordsSavePath + "/Record_" + std::to_string(RecordsSaveIndex) + ".png",
-                        *MainPicture);
+            cv::imwrite(RecordsSavePath + "/Record_" + std::to_string(RecordsSaveIndex) + ".png", *MainPicture);
             ++RecordsSaveIndex;
             LastRecordingTime = current_time;
         }
