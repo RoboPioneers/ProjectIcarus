@@ -27,6 +27,8 @@ namespace Icarus
 
         unsigned int* EnemyColorMinHue {nullptr};
         unsigned int* EnemyColorMaxHue {nullptr};
+        unsigned int* AlleyColorMinHue {nullptr};
+        unsigned int* AlleyColorMaxHue {nullptr};
 
         /// Time point of the last frame.
         std::chrono::steady_clock::time_point LastFrameTimePoint;

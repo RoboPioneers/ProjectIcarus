@@ -6,6 +6,7 @@
 #include "../Components/ContourElement.hpp"
 #include "../Modules/RectangleTool.hpp"
 #include "../Modules/GeometryFeature.hpp"
+#include "../Modules/FastDilate.hpp"
 
 namespace Icarus
 {
@@ -15,6 +16,8 @@ namespace Icarus
         IntensityThreshold = GetConfigurator()->Get<unsigned int>("IntensityThreshold").value_or(150);
         ValueThreshold = GetConfigurator()->Get<unsigned int>("ValueThreshold").value_or(150);
         SaturationThreshold = GetConfigurator()->Get<unsigned int>("SaturationThreshold").value_or(200);
+        EnemyDilateSize = GetConfigurator()->Get<unsigned int>("EnemyDilateSize").value_or(10);
+        AlleyDilateSize = GetConfigurator()->Get<unsigned int>("AlleyDilateSize").value_or(5);
     }
 
     /// Initialize blackboard values.
@@ -22,8 +25,10 @@ namespace Icarus
     {
         InitializeFacilities();
 
-        EnemyMinHue = GetBlackboard()->GetPointer<unsigned int>("EnemyMinHue", 0);
-        EnemyMaxHue = GetBlackboard()->GetPointer<unsigned int>("EnemyMaxHue", 20);
+        EnemyMinHue = GetBlackboard()->GetPointer<unsigned int>("EnemyMinHue", 5);
+        EnemyMaxHue = GetBlackboard()->GetPointer<unsigned int>("EnemyMaxHue", 30);
+        AlleyMinHue = GetBlackboard()->GetPointer<unsigned int>("AlleyMinHue", 100);
+        AlleyMaxHue = GetBlackboard()->GetPointer<unsigned int>("AlleyMaxHue", 130);
 
         MainPicture = GetBlackboard()->GetPointer<cv::Mat>("MainPicture");
         MaskPicture = GetBlackboard()->GetPointer<cv::Mat>("MaskPicture");
@@ -70,19 +75,30 @@ namespace Icarus
         std::vector<cv::cuda::GpuMat> hsv_channels;
         cv::cuda::split(gpu_hsv_picture, hsv_channels, main_stream);
 
-        cv::cuda::GpuMat gpu_h_min_mask, gpu_h_max_mask, gpu_h_mask;
-        cv::cuda::inRange(hsv_channels[0], *EnemyMinHue, *EnemyMaxHue, gpu_h_mask, main_stream);
+        cv::cuda::GpuMat gpu_enemy_h_mask;
+        cv::cuda::inRange(hsv_channels[0], *EnemyMinHue, *EnemyMaxHue,
+                          gpu_enemy_h_mask, main_stream);
+        cv::cuda::GpuMat gpu_alley_h_mask;
+        cv::cuda::inRange(hsv_channels[0], *AlleyMinHue, *AlleyMaxHue,
+                          gpu_alley_h_mask, main_stream);
+        cv::cuda::GpuMat gpu_h_mask(hsv_channels[0].size(), CV_8UC1, cv::Scalar(0));
+        // Fill enemy blocks with 255.
+        FastDilate(gpu_enemy_h_mask, gpu_h_mask, cv::Size(static_cast<int>(EnemyDilateSize),
+                                                          static_cast<int>(EnemyDilateSize)),
+                   0, 255, 255, main_stream);
+        // Overwrite alley blocks with 0.
+        FastDilate(gpu_alley_h_mask, gpu_h_mask, cv::Size(static_cast<int>(AlleyDilateSize),
+                                                          static_cast<int>(AlleyDilateSize)),
+                   0, 255, 0, main_stream);
+
         cv::cuda::GpuMat gpu_s_mask;
         cv::cuda::threshold(hsv_channels[1], gpu_s_mask, SaturationThreshold, 255, cv::THRESH_BINARY,
                             main_stream);
-        cv::cuda::GpuMat gpu_v_mask;
-        cv::cuda::threshold(hsv_channels[2], gpu_v_mask, ValueThreshold, 255, cv::THRESH_BINARY,
-                            main_stream);
+        FastDilate(gpu_s_mask, gpu_s_mask, cv::Size(static_cast<int>(EnemyDilateSize),
+                                                    static_cast<int>(EnemyDilateSize)),
+                   0, 255, 255, main_stream);
         cv::cuda::GpuMat gpu_color_mask;
         cv::cuda::bitwise_and(gpu_h_mask, gpu_s_mask, gpu_color_mask, cv::noArray(), main_stream);
-        cv::cuda::bitwise_and(gpu_color_mask, gpu_v_mask, gpu_color_mask, cv::noArray(), main_stream);
-        DilateFilter->apply(gpu_color_mask, gpu_color_mask, main_stream);
-        DilateFilter->apply(gpu_color_mask, gpu_color_mask, main_stream);
 
         cv::cuda::GpuMat gpu_mask;
         cv::cuda::bitwise_and(gpu_color_mask, gpu_gray_mask, gpu_mask);

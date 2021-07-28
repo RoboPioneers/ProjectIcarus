@@ -89,6 +89,13 @@ namespace Icarus
         main_rectangle = Modules::RectangleTool::GetSafeRectangle(
                 main_rectangle,cv::Size(MainPicture->cols, MainPicture->rows));
 
+        #ifdef OFFLINE
+        main_rectangle.x = 0;
+        main_rectangle.y = 0;
+        main_rectangle.width = MainPicture->cols;
+        main_rectangle.height = MainPicture->rows;
+        #endif
+
         *InterestedArea = main_rectangle;
 
         return Gaia::BehaviorTree::Result::Success;

@@ -25,10 +25,16 @@ namespace Icarus
         unsigned int* EnemyMinHue {nullptr};
         /// Max hue of enemy color.
         unsigned int* EnemyMaxHue {nullptr};
+        /// Min hue of alley color.
+        unsigned int* AlleyMinHue {nullptr};
+        /// Max hue of alley color.
+        unsigned int* AlleyMaxHue {nullptr};
 
         unsigned int IntensityThreshold;
         unsigned int ValueThreshold;
         unsigned int SaturationThreshold;
+        unsigned int EnemyDilateSize;
+        unsigned int AlleyDilateSize;
 
         /// Main picture in the blackboard.
         cv::Mat* MainPicture {nullptr};

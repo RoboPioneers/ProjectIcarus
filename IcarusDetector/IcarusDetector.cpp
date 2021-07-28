@@ -35,6 +35,8 @@ namespace Icarus
 
         EnemyColorMinHue = context->GetPointer<unsigned int>("EnemyMinHue", 100);
         EnemyColorMaxHue = context->GetPointer<unsigned int>("EnemyMaxHue", 120);
+        AlleyColorMinHue = context->GetPointer<unsigned int>("AlleyMinHue", 0);
+        AlleyColorMaxHue = context->GetPointer<unsigned int>("AlleyMaxHue", 20);
 
         if (OptionVariables.count("debug"))
         {
@@ -69,10 +71,15 @@ namespace Icarus
             if (signal.name() == "sc_b")
             {
                 this->EnemyColorInitialized = true;
-                *(this->EnemyColorMinHue) = 0;
+                *(this->EnemyColorMinHue) = 5; // Attention: hue of white (over exposure) is 0.
                 *(this->EnemyColorMaxHue) = 20;
+                *(this->AlleyColorMinHue) = 90;
+                *(this->AlleyColorMaxHue) = 130;
                 this->GetLogger()->RecordMilestone(
-                        "Color received: alley color blue, enemy color red ["
+                        "Color received: alley color blue ["
+                        + std::to_string(*(this->AlleyColorMinHue))
+                        + std::to_string(*(this->AlleyColorMaxHue))
+                        + "enemy color red ["
                         + std::to_string(*(this->EnemyColorMinHue)) + ","
                         + std::to_string(*(this->EnemyColorMaxHue)) + "]");
             } else if (signal.name() == "sc_r")
@@ -80,8 +87,13 @@ namespace Icarus
                 this->EnemyColorInitialized = true;
                 *(this->EnemyColorMinHue) = 100;
                 *(this->EnemyColorMaxHue) = 120;
+                *(this->AlleyColorMinHue) = 5; // Attention: hue of white (over exposure) is 0.
+                *(this->AlleyColorMaxHue) = 30;
                 this->GetLogger()->RecordMilestone(
-                        "Color received: alley color red, enemy color blue ["
+                        "Color received: alley color red ["
+                        + std::to_string(*(this->AlleyColorMinHue))
+                        + std::to_string(*(this->AlleyColorMaxHue))
+                        + "enemy color blue ["
                         + std::to_string(*(this->EnemyColorMinHue)) + ","
                         + std::to_string(*(this->EnemyColorMaxHue)) + "]");
             } else if (signal.name() == "to_ec_b" || signal.name() == "to_ec_s")

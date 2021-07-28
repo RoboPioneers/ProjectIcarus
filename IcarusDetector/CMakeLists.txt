@@ -35,6 +35,10 @@ FILE(GLOB_RECURSE TARGET_SOURCE *.cpp)
 FILE(GLOB_RECURSE TARGET_HEADER *.hpp)
 # Protobuf Files
 FILE(GLOB_RECURSE TARGET_PROTO *.proto)
+# CUDA Source Files
+FILE(GLOB_RECURSE TARGET_CUDA_SOURCE *.cu)
+# CUDA Header Files
+FILE(GLOB_RECURSE TARGET_CUDA_HEADER *.cuh)
 
 #==============================
 # Compile Targets
