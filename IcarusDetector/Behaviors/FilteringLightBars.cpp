@@ -9,7 +9,7 @@ namespace Icarus
     {
         LightBarNearMediumSeparator = GetConfigurator()->Get<unsigned int>("LightBarNearMediumSeparator")
                 .value_or(35);
-        LightBarMediumFarSeparator = GetConfigurator()->Get<unsigned int>("LightBarNearMediumSeparator")
+        LightBarMediumFarSeparator = GetConfigurator()->Get<unsigned int>("LightBarFarMediumSeparator")
                 .value_or(7);
     }
 
