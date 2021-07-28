@@ -20,15 +20,15 @@ namespace Icarus
         /// Add component to the candidate if it pass the pattern check.
         virtual void AddPatternComponent(Gaia::Components::Component* candidate) {}
 
-        /// Load configuration here.
-        virtual void LoadConfiguration() {};
-
         std::unordered_set<std::string> ScenarioTags;
         std::unordered_set<std::string> PatternTags;
 
         Gaia::Framework::Clients::ConfigurationClient* Configurator {nullptr};
 
     public:
+        /// Load configuration here.
+        virtual void LoadConfiguration() {};
+
         /// Initialize basic facilities.
         void Initialize(Gaia::Framework::Clients::ConfigurationClient* configurator)
         {

@@ -9,12 +9,11 @@ namespace Icarus
     public:
         NearArmorChecker()
         {
-            ArmorCheckerBase::MaxDeltaAngle = 6.0f;
-            ArmorCheckerBase::MaxLeaningAngle = 30.0f;
             CheckerBase::ScenarioTags = {"Near"};
         }
 
     protected:
+
         bool CheckPattern(PONElement *candidate) override
         {
             if (candidate->Feature.Length - candidate->ContourA->Feature.Width
@@ -45,6 +44,14 @@ namespace Icarus
                 > std::min({candidate->ContourA->Feature.Length, candidate->ContourB->Feature.Length}) * 0.6)
                 return false;
             return true;
+        }
+
+    public:
+        void LoadConfiguration() override
+        {
+            ArmorCheckerBase::LoadConfiguration();
+            ArmorCheckerBase::MaxLeaningAngle = Configurator->Get<double>("Armor/Near/MaxLeaningAngle").value_or(30.0);
+            ArmorCheckerBase::MaxDeltaAngle = Configurator->Get<double>("Armor/Near/MaxDeltaAngle").value_or(6.0);
         }
     };
 }

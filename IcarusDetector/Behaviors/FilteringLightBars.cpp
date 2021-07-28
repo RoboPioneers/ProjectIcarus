@@ -11,6 +11,9 @@ namespace Icarus
                 .value_or(35);
         LightBarMediumFarSeparator = GetConfigurator()->Get<unsigned int>("LightBarFarMediumSeparator")
                 .value_or(7);
+        FarChecker.LoadConfiguration();
+        MediumChecker.LoadConfiguration();
+        NearChecker.LoadConfiguration();
     }
 
     void FilteringLightBars::OnInitialize()

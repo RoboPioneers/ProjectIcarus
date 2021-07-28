@@ -9,13 +9,11 @@ namespace Icarus
     public:
         FarArmorChecker()
         {
-            ArmorCheckerBase::MaxLeaningAngle = 15.0;
-            // Disable angle check for far distance because low confidence in angle estimation.
-            ArmorCheckerBase::MaxDeltaAngle = 180.0;
             CheckerBase::ScenarioTags = {"Far"};
         }
-
     protected:
+        double MaxLengthRatio {};
+
         bool CheckPattern(PONElement *candidate) override
         {
             if (candidate->Feature.Width <= 1) return false;
@@ -25,10 +23,20 @@ namespace Icarus
             if (std::fabs(candidate->ContourA->Feature.Length - candidate->ContourB->Feature.Length)
                 > 3)
                 return false;
-            if (candidate->Feature.Length / candidate->Feature.Width > 4.0)
+            if (candidate->Feature.Length / candidate->Feature.Width > MaxLengthRatio)
                 return false;
 
             return true;
+        }
+    public:
+        void LoadConfiguration() override
+        {
+            ArmorCheckerBase::LoadConfiguration();
+            ArmorCheckerBase::MaxLeaningAngle = Configurator->Get<double>("Armor/Far/MaxLeaningAngle")
+                    .value_or(15.0);
+            ArmorCheckerBase::MaxDeltaAngle = Configurator->Get<double>("Armor/Far/MaxDeltaAngle")
+                    .value_or(180.0);
+            MaxLengthRatio = Configurator->Get<double>("Armor/Far/MaxLengthRatio").value_or(4.0);
         }
     };
 }

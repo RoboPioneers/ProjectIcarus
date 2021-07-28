@@ -20,7 +20,9 @@ namespace Icarus
 
     void FilteringArmors::LoadConfigurations()
     {
-
+        FarChecker.LoadConfiguration();
+        MediumChecker.LoadConfiguration();
+        NearChecker.LoadConfiguration();
     }
 
     void FilteringArmors::OnInitialize()

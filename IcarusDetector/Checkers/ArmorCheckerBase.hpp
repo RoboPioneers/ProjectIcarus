@@ -10,14 +10,19 @@ namespace Icarus
     class ArmorCheckerBase : public CheckerBase<PONElement>
     {
     public:
-        double MaxLeaningAngle {20};
-        double MaxDeltaAngle {20};
+        double MaxLeaningAngle {};
+        double MaxDeltaAngle {};
 
         ArmorCheckerBase()
         {
             CheckerBase::PatternTags = {"Armor"};
         }
 
+        void LoadConfiguration() override
+        {
+            MaxLeaningAngle = Configurator->Get<double>("Armor/Base/MaxLeaningAngle").value_or(20);
+            MaxDeltaAngle = Configurator->Get<double>("Armor/Base/MaxDeltaAngle").value_or(20);
+        }
     protected:
         /// Check distance scenario.
         bool CheckScenario(PONElement *candidate) override

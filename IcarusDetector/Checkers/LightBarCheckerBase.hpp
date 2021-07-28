@@ -12,7 +12,7 @@ namespace Icarus
     public:
         int MinLength {0};
         int MaxLength {0};
-        double MaxLeaningAngle {30.0};
+        double MaxLeaningAngle {};
 
         LightBarCheckerBase()
         {
@@ -29,6 +29,13 @@ namespace Icarus
             if (candidate->Feature.Length < MinLength || candidate->Feature.Length > MaxLength)
                 return false;
             return true;
+        }
+    public:
+        void LoadConfiguration() override
+        {
+            MinLength = Configurator->Get<int>("Bar/Base/MinLength").value_or(0);
+            MaxLength = Configurator->Get<int>("Bar/Base/MaxLength").value_or(0);
+            MaxLeaningAngle = Configurator->Get<double>("Bar/Base/MaxLeaningAngle").value_or(30.0);
         }
     };
 }
