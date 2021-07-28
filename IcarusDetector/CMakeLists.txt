@@ -17,6 +17,9 @@ if (NOT PROJECT_DECLARED)
     set(PROJECT_DECLARED)
 endif()
 
+if (NOT CMAKE_CUDA_COMPILER)
+    set(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)
+endif()
 enable_language(CUDA)
 
 #==============================
