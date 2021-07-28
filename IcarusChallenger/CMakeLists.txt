@@ -39,7 +39,9 @@ FILE(GLOB_RECURSE TARGET_PROTO *.proto)
 #==============================
 
 find_package(Protobuf REQUIRED)
-protobuf_generate_cpp(PROTO_SOURCES PROTO_HEADERS ${TARGET_PROTO})
+if (TARGET_PROTO)
+    protobuf_generate_cpp(PROTO_SOURCES PROTO_HEADERS ${TARGET_PROTO})
+endif()
 
 # To lower the running cost, this module will be compiled as a static library.
 add_executable(${TARGET_NAME}

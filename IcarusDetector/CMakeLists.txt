@@ -2,7 +2,7 @@
 # Requirements
 #==============================
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.19)
 
 #==============================
 # Project Settings
@@ -16,6 +16,8 @@ if (NOT PROJECT_DECLARED)
     project("${TARGET_NAMESPACE} ${TARGET_NAME}" LANGUAGES CXX VERSION ${TARGET_VERSION})
     set(PROJECT_DECLARED)
 endif()
+
+enable_language(CUDA)
 
 #==============================
 # Command Lines
@@ -39,7 +41,9 @@ FILE(GLOB_RECURSE TARGET_PROTO *.proto)
 #==============================
 
 find_package(Protobuf REQUIRED)
-protobuf_generate_cpp(PROTO_SOURCES PROTO_HEADERS ${TARGET_PROTO})
+if (TARGET_PROTO)
+    protobuf_generate_cpp(PROTO_SOURCES PROTO_HEADERS ${TARGET_PROTO})
+endif()
 
 # To lower the running cost, this module will be compiled as a static library.
 add_executable(${TARGET_NAME}
