@@ -242,8 +242,6 @@ namespace Icarus
 
         DEBUG_BEGIN
 
-            this->GetLogger()->RecordMessage("Distance:" + std::to_string(*HitDistance));
-
             cv::Mat armors_picture = MainPicture->clone();
             for (const auto& armor : possible_armors[0])
             {
