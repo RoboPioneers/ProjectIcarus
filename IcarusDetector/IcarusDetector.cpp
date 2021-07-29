@@ -77,9 +77,9 @@ namespace Icarus
                 *(this->AlleyColorMaxHue) = 130;
                 this->GetLogger()->RecordMilestone(
                         "Color received: alley color blue ["
-                        + std::to_string(*(this->AlleyColorMinHue))
+                        + std::to_string(*(this->AlleyColorMinHue)) + ","
                         + std::to_string(*(this->AlleyColorMaxHue))
-                        + "enemy color red ["
+                        + "], enemy color red ["
                         + std::to_string(*(this->EnemyColorMinHue)) + ","
                         + std::to_string(*(this->EnemyColorMaxHue)) + "]");
             } else if (signal.name() == "sc_r")
@@ -91,9 +91,9 @@ namespace Icarus
                 *(this->AlleyColorMaxHue) = 30;
                 this->GetLogger()->RecordMilestone(
                         "Color received: alley color red ["
-                        + std::to_string(*(this->AlleyColorMinHue))
+                        + std::to_string(*(this->AlleyColorMinHue)) + ","
                         + std::to_string(*(this->AlleyColorMaxHue))
-                        + "enemy color blue ["
+                        + "], enemy color blue ["
                         + std::to_string(*(this->EnemyColorMinHue)) + ","
                         + std::to_string(*(this->EnemyColorMaxHue)) + "]");
             } else if (signal.name() == "to_ec_b" || signal.name() == "to_ec_s")
