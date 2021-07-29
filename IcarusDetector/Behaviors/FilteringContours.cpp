@@ -99,10 +99,11 @@ namespace Icarus
                    0, 255, 255, main_stream);
         cv::cuda::GpuMat gpu_color_mask;
         cv::cuda::bitwise_and(gpu_h_mask, gpu_s_mask, gpu_color_mask, cv::noArray(), main_stream);
-
+        FastDilate(gpu_color_mask, gpu_color_mask, cv::Size(static_cast<int>(EnemyDilateSize),
+                                                            static_cast<int>(EnemyDilateSize)),
+                   0, 255, 255, main_stream);
         cv::cuda::GpuMat gpu_mask;
         cv::cuda::bitwise_and(gpu_color_mask, gpu_gray_mask, gpu_mask);
-
         gpu_mask.download(*MaskPicture, main_stream);
         main_stream.waitForCompletion();
 
