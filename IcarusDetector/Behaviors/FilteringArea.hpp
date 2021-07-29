@@ -22,6 +22,7 @@ namespace Icarus
         std::optional<cv::RotatedRect>* FoundTarget {nullptr};
         /// Generated interested area that very likely contains a target.
         cv::Rect* InterestedArea;
+        bool* InterestedAreaUsed {nullptr};
 
         /// The time point of the last time when refresh ROI.
         std::chrono::steady_clock::time_point InterestedAreaRefreshTimestamp;

@@ -45,6 +45,7 @@ namespace Icarus
         HitCommand = GetBlackboard()->GetPointer<int>("HitCommand");
         HitDistance = GetBlackboard()->GetPointer<double>("HitDistance", 0);
         MotionStatus = GetBlackboard()->GetPointer<int>("MotionStatus", 0);
+        InterestedAreaUsed = GetBlackboard()->GetPointer<bool>("InterestedAreaUsed", false);
         FarChecker.Initialize(GetConfigurator());
         MediumChecker.Initialize(GetConfigurator());
         NearChecker.Initialize(GetConfigurator());
@@ -97,10 +98,13 @@ namespace Icarus
             CheckReloadConfiguration();
         DEBUG_END
 
-        HitPoint->x = 0;
-        HitPoint->y = 0;
         *HitCommand = 0;
-        *HitDistance = 0;
+        if (!*InterestedAreaUsed)
+        {
+            *HitDistance = 0;
+            HitPoint->x = 0;
+            HitPoint->y = 0;
+        }
         *MotionStatus = 0;
         *FoundTarget = std::nullopt;
 

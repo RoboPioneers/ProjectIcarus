@@ -42,6 +42,7 @@ namespace Icarus
         int* HitCommand {nullptr};
         double* HitDistance {nullptr};
         int* MotionStatus {nullptr};
+        bool* InterestedAreaUsed {nullptr};
 
         std::optional<cv::RotatedRect>* FoundTarget;
 

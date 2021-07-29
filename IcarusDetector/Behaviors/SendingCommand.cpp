@@ -47,10 +47,6 @@ namespace Icarus
 
         Serial->Send(package_bytes);
 
-        *HitCommand = 0;
-        *HitPoint = cv::Point2i(0, 0);
-        *HitDistance = 0;
-
         return Result::Success;
     }
 }

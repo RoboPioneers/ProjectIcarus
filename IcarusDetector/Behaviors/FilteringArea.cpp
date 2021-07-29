@@ -17,7 +17,7 @@ namespace Icarus
         MainPicture = GetBlackboard()->GetPointer<cv::Mat>("MainPicture");
         InterestedArea = GetBlackboard()->GetPointer<cv::Rect>("InterestedArea");
         FoundTarget = GetBlackboard()->GetPointer<std::optional<cv::RotatedRect>>("FoundTarget", std::nullopt);
-
+        InterestedAreaUsed = GetBlackboard()->GetPointer<bool>("InterestedAreaUsed", false);
         LoadConfigurations();
     }
 
@@ -27,7 +27,7 @@ namespace Icarus
 
         auto current_time = std::chrono::steady_clock::now();
 
-        bool interested_area_used = false;
+        *InterestedAreaUsed = false;
 
         if (*FoundTarget)
         {
@@ -53,7 +53,7 @@ namespace Icarus
 
             PreviousInterestedArea = main_rectangle;
             PreviousInterestedAreaTimestamp = current_time;
-            interested_area_used = true;
+            *InterestedAreaUsed = true;
         }
         else
         {
@@ -66,7 +66,7 @@ namespace Icarus
                 {
                     // Not expired, use the old ROI.
                     main_rectangle = *PreviousInterestedArea;
-                    interested_area_used = true;
+                    *InterestedAreaUsed = true;
                 }
                 else
                 {
@@ -82,7 +82,7 @@ namespace Icarus
             }
         }
 
-        if (!interested_area_used ||
+        if (!(*InterestedAreaUsed)  ||
             (current_time - InterestedAreaRefreshTimestamp) > std::chrono::seconds(1))
         {
             PreviousInterestedArea = std::nullopt;
