@@ -13,12 +13,13 @@ namespace Icarus
         }
     protected:
         double MaxLengthRatio {};
+        int MaxDeltaY {};
 
         bool CheckPattern(PONElement *candidate) override
         {
             if (candidate->Feature.Width <= 1) return false;
             if (std::fabs(candidate->ContourA->Feature.Center.y - candidate->ContourB->Feature.Center.y)
-                > 5)
+                > MaxDeltaY)
                 return false;
             if (std::fabs(candidate->ContourA->Feature.Length - candidate->ContourB->Feature.Length)
                 > 3)
@@ -37,6 +38,7 @@ namespace Icarus
             ArmorCheckerBase::MaxDeltaAngle = Configurator->Get<double>("Armor/Far/MaxDeltaAngle")
                     .value_or(180.0);
             MaxLengthRatio = Configurator->Get<double>("Armor/Far/MaxLengthRatio").value_or(4.0);
+            MaxDeltaY = Configurator->Get<int>("Armor/Far/MaxDeltaY").value_or(5);
         }
     };
 }
