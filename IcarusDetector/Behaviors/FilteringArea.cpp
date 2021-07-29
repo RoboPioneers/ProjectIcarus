@@ -42,6 +42,15 @@ namespace Icarus
             main_rectangle = Modules::RectangleTool::GetSafeRectangle(
                     main_rectangle,cv::Size(MainPicture->cols, MainPicture->rows));
 
+            if (PreviousInterestedArea)
+            {
+                // New and old ROIs are overlapped.
+                main_rectangle.width = PreviousInterestedArea->width;
+                main_rectangle.height = PreviousInterestedArea->height;
+                main_rectangle.x = main_rectangle.x * 0.7 + PreviousInterestedArea->x * 0.3;
+                main_rectangle.y = main_rectangle.y * 0.7 + PreviousInterestedArea->y * 0.3;
+            }
+
             PreviousInterestedArea = main_rectangle;
             PreviousInterestedAreaTimestamp = current_time;
             interested_area_used = true;
