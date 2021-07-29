@@ -2,6 +2,9 @@
 #include "Modules/GeneralMessageTranslator.hpp"
 #include "Signal.pb.h"
 #include <thread>
+#ifdef OFFLINE
+#include <iostream>
+#endif
 
 namespace Icarus
 {
@@ -129,6 +132,20 @@ namespace Icarus
         current_time = std::chrono::steady_clock::now();
         LastFrameTimePoint = current_time;
 
+        #ifdef OFFLINE
+        auto measure_time = std::chrono::system_clock::now();
+
+        if (measure_time - LastMeasuringTime > std::chrono::seconds(3))
+        {
+            auto fps = static_cast<double>(AccumulatedFramesCount) / static_cast<double>(
+                    std::chrono::duration_cast<std::chrono::milliseconds>(measure_time - LastMeasuringTime).count())
+                            * 1000;
+            AccumulatedFramesCount = 0;
+            std::cout << "FPS: " + std::to_string(fps) << std::endl;
+            LastMeasuringTime = measure_time;
+        }
+        ++AccumulatedFramesCount;
+        #endif
         if (!EnemyColorInitialized) return;
         DetectionBehaviors.Execute();
     }

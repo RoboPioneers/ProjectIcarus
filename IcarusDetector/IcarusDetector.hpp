@@ -33,6 +33,12 @@ namespace Icarus
         /// Time point of the last frame.
         std::chrono::steady_clock::time_point LastFrameTimePoint;
 
+        #ifdef OFFLINE
+        /// Time point of last FPS measuring.
+        std::chrono::system_clock::time_point LastMeasuringTime;
+        /// Accumulated frames counter from last FPS measuring.
+        unsigned int AccumulatedFramesCount {0};
+        #endif
     protected:
         /// Behavior tree for detection.
         DetectionLayout DetectionBehaviors;
