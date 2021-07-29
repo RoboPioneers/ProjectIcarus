@@ -18,7 +18,7 @@ namespace Icarus
 
         std::string PicturesFolder;
 
-        bool Flip {true};
+        bool Flip {false};
 
         boost::filesystem::directory_iterator PictureEnd {};
         boost::filesystem::directory_iterator PictureIterator {};
