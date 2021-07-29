@@ -19,7 +19,8 @@ namespace Icarus
         /// Accumulated frames counter from last FPS measuring.
         unsigned int AccumulatedFramesCount {0};
 
-        bool RecordEnable;
+        int RecordEnable;
+        int RecordInterval;
 
         std::string RecordsSavePath {"./Pictures/IcarusChallenger/"};
         unsigned long long RecordsSaveIndex {0};

@@ -15,7 +15,7 @@ namespace Icarus
         auto camera_index = GetConfigurator()->Get<unsigned int>("CameraIndex").value_or(0);
         auto vision_name = GetConfigurator()->Get<std::string>("VisionName").value_or("main");
         RecordEnable = GetConfigurator()->Get<int>("RecordEnable").value_or(0);
-
+        RecordInterval = GetConfigurator()->Get<int>("RecordInterval").value_or(1500);
         CameraClient = std::make_shared<Gaia::CameraService::CameraClient>(camera_type, camera_index,
                                                                            GetConnection());
         CameraReader = std::make_shared<Gaia::CameraService::CameraReader>(
@@ -61,7 +61,7 @@ namespace Icarus
 
         *MainPicture = CameraReader->Read();
 
-        if (RecordEnable != 0 && current_time - LastRecordingTime > std::chrono::seconds(2))
+        if (RecordEnable != 0 && current_time - LastRecordingTime > std::chrono::milliseconds(RecordInterval))
         {
             cv::imwrite(RecordsSavePath + "/Record_" + std::to_string(RecordsSaveIndex) + ".png", *MainPicture);
             ++RecordsSaveIndex;

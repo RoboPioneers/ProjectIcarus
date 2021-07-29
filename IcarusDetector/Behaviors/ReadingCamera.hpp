@@ -20,6 +20,7 @@ namespace Icarus
         unsigned int AccumulatedFramesCount {0};
 
         int RecordEnable;
+        int RecordInterval;
 
         std::string RecordsSavePath {"./Pictures/IcarusDetector/"};
         unsigned long long RecordsSaveIndex {0};
