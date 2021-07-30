@@ -14,10 +14,8 @@ namespace Icarus
     void FilteringContours::LoadConfigurations()
     {
         IntensityThreshold = GetConfigurator()->Get<unsigned int>("IntensityThreshold").value_or(150);
-        ValueThreshold = GetConfigurator()->Get<unsigned int>("ValueThreshold").value_or(150);
-        SaturationThreshold = GetConfigurator()->Get<unsigned int>("SaturationThreshold").value_or(200);
-        EnemyDilateSize = GetConfigurator()->Get<unsigned int>("EnemyDilateSize").value_or(10);
-        AlleyDilateSize = GetConfigurator()->Get<unsigned int>("AlleyDilateSize").value_or(5);
+        ColorThreshold = GetConfigurator()->Get<int>("ColorThreshold").value_or(100);
+        EnemyDilateSize = GetConfigurator()->Get<unsigned int>("EnemyDilateSize").value_or(30);
     }
 
     /// Initialize blackboard values.
@@ -25,11 +23,7 @@ namespace Icarus
     {
         InitializeFacilities();
 
-        EnemyMinHue = GetBlackboard()->GetPointer<unsigned int>("EnemyMinHue", 5);
-        EnemyMaxHue = GetBlackboard()->GetPointer<unsigned int>("EnemyMaxHue", 30);
-        AlleyMinHue = GetBlackboard()->GetPointer<unsigned int>("AlleyMinHue", 100);
-        AlleyMaxHue = GetBlackboard()->GetPointer<unsigned int>("AlleyMaxHue", 130);
-
+        IsEnemyRed = GetBlackboard()->GetPointer<bool>("IsEnemyRed", true);
         MainPicture = GetBlackboard()->GetPointer<cv::Mat>("MainPicture");
         MaskPicture = GetBlackboard()->GetPointer<cv::Mat>("MaskPicture");
 
@@ -60,7 +54,7 @@ namespace Icarus
 
         gpu_original_picture.upload((*MainPicture)(*InterestedArea), main_stream);
 
-        // Get gray picture.
+        // Prepare intensity mask.
         cv::cuda::GpuMat gpu_gray_mask;
         cv::cuda::cvtColor(gpu_original_picture,
                            gpu_gray_mask, cv::COLOR_BGR2GRAY, 0,
@@ -68,44 +62,44 @@ namespace Icarus
         cv::cuda::threshold(gpu_gray_mask, gpu_gray_mask, IntensityThreshold, 255,
                             cv::THRESH_BINARY, main_stream);
 
-        // Split HSV picture.
-        cv::cuda::GpuMat gpu_hsv_picture;
-        cv::cuda::cvtColor(gpu_original_picture, gpu_hsv_picture, cv::COLOR_BGR2HSV, 0,
-                           main_stream);
-        std::vector<cv::cuda::GpuMat> hsv_channels;
-        cv::cuda::split(gpu_hsv_picture, hsv_channels, main_stream);
-
-        cv::cuda::GpuMat gpu_enemy_h_mask;
-        cv::cuda::inRange(hsv_channels[0], *EnemyMinHue, *EnemyMaxHue,
-                          gpu_enemy_h_mask, main_stream);
-        cv::cuda::GpuMat gpu_alley_h_mask;
-        cv::cuda::inRange(hsv_channels[0], *AlleyMinHue, *AlleyMaxHue,
-                          gpu_alley_h_mask, main_stream);
-        cv::cuda::GpuMat gpu_h_mask(hsv_channels[0].size(), CV_8UC1, cv::Scalar(0));
-        // Fill enemy blocks with 255.
-        FastDilate(gpu_enemy_h_mask, gpu_h_mask, cv::Size(static_cast<int>(EnemyDilateSize),
-                                                          static_cast<int>(EnemyDilateSize)),
-                   0, 255, 255, main_stream);
-        // Overwrite alley blocks with 0.
-        FastDilate(gpu_alley_h_mask, gpu_h_mask, cv::Size(static_cast<int>(AlleyDilateSize),
-                                                          static_cast<int>(AlleyDilateSize)),
-                   0, 255, 0, main_stream);
-
-        cv::cuda::GpuMat gpu_s_mask;
-        cv::cuda::threshold(hsv_channels[1], gpu_s_mask, SaturationThreshold, 255, cv::THRESH_BINARY,
-                            main_stream);
-        FastDilate(gpu_s_mask, gpu_s_mask, cv::Size(static_cast<int>(EnemyDilateSize),
-                                                    static_cast<int>(EnemyDilateSize)),
-                   0, 255, 255, main_stream);
+        // Prepare color mask.
+        cv::cuda::GpuMat gpu_color_channels[3];
+        cv::cuda::split(gpu_original_picture, gpu_color_channels, main_stream);
+        cv::cuda::GpuMat gpu_b_signed, gpu_r_signed;
+        gpu_color_channels[0].convertTo(gpu_b_signed, CV_32SC1, main_stream);
+        gpu_color_channels[2].convertTo(gpu_r_signed, CV_32SC1, main_stream);
+        cv::cuda::GpuMat gpu_color_difference;
+        cv::cuda::GpuMat gpu_dilated_color_difference(gpu_r_signed.size(), CV_32SC1, cv::Scalar(0));
+        if (*IsEnemyRed)
+        {
+            cv::cuda::addWeighted(gpu_r_signed, 1.0, gpu_b_signed, -1.0,
+                                  0.0, gpu_color_difference, -1, main_stream);
+        }
+        else
+        {
+            cv::cuda::addWeighted(gpu_r_signed, -1.0, gpu_b_signed, 1.0,
+                                  0.0, gpu_color_difference, -1, main_stream);
+        }
+        FastDilate32S(gpu_color_difference, gpu_dilated_color_difference,
+                      cv::Size(static_cast<int>(EnemyDilateSize),
+                               static_cast<int>(EnemyDilateSize)),
+                      ColorThreshold, 255, 255, main_stream);
         cv::cuda::GpuMat gpu_color_mask;
-        cv::cuda::bitwise_and(gpu_h_mask, gpu_s_mask, gpu_color_mask, cv::noArray(), main_stream);
-        FastDilate(gpu_color_mask, gpu_color_mask, cv::Size(static_cast<int>(EnemyDilateSize),
-                                                            static_cast<int>(EnemyDilateSize)),
-                   0, 255, 255, main_stream);
+        gpu_dilated_color_difference.convertTo(gpu_color_mask, CV_8UC1, main_stream);
+
         cv::cuda::GpuMat gpu_mask;
-        cv::cuda::bitwise_and(gpu_color_mask, gpu_gray_mask, gpu_mask);
+        cv::cuda::bitwise_and(gpu_color_mask, gpu_gray_mask, gpu_mask,
+                              cv::noArray(), main_stream);
         gpu_mask.download(*MaskPicture, main_stream);
         main_stream.waitForCompletion();
+
+        #ifdef OFFLINE
+        cv::Mat color_mask_display;
+        gpu_color_mask.download(color_mask_display, main_stream);
+        main_stream.waitForCompletion();
+        cv::resize(color_mask_display, color_mask_display, color_mask_display.size() / 2);
+        cv::imshow("Color Mask", color_mask_display);
+        #endif
 
         DEBUG_BEGIN
         cv::Mat mask_display;

@@ -24,11 +24,7 @@ namespace Icarus
         std::shared_ptr<Gaia::CameraService::CameraClient> CameraClient {nullptr};
 
         std::atomic_bool EnemyColorInitialized {false};
-
-        unsigned int* EnemyColorMinHue {nullptr};
-        unsigned int* EnemyColorMaxHue {nullptr};
-        unsigned int* AlleyColorMinHue {nullptr};
-        unsigned int* AlleyColorMaxHue {nullptr};
+        bool* IsEnemyRed {nullptr};
 
         /// Time point of the last frame.
         std::chrono::steady_clock::time_point LastFrameTimePoint;

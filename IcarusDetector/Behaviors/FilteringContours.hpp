@@ -20,21 +20,12 @@ namespace Icarus
 
         std::unique_ptr<SharedPicture::PictureWriter> MaskWriter;
     protected:
-
-        /// Min hue of enemy color.
-        unsigned int* EnemyMinHue {nullptr};
-        /// Max hue of enemy color.
-        unsigned int* EnemyMaxHue {nullptr};
-        /// Min hue of alley color.
-        unsigned int* AlleyMinHue {nullptr};
-        /// Max hue of alley color.
-        unsigned int* AlleyMaxHue {nullptr};
-
+        /// Whether enemy is red or blue.
+        bool* IsEnemyRed {nullptr};
+        /// Color threshold for color channels difference.
+        int ColorThreshold;
         unsigned int IntensityThreshold;
-        unsigned int ValueThreshold;
-        unsigned int SaturationThreshold;
         unsigned int EnemyDilateSize;
-        unsigned int AlleyDilateSize;
 
         /// Main picture in the blackboard.
         cv::Mat* MainPicture {nullptr};

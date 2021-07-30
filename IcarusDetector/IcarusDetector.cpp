@@ -36,10 +36,7 @@ namespace Icarus
         context->GetPointer<Gaia::InspectionService::InspectionClient*>("Inspector", Inspector.get());
         DebugMode = context->GetPointer<bool>("DebugMode", false);
 
-        EnemyColorMinHue = context->GetPointer<unsigned int>("EnemyMinHue", 100);
-        EnemyColorMaxHue = context->GetPointer<unsigned int>("EnemyMaxHue", 120);
-        AlleyColorMinHue = context->GetPointer<unsigned int>("AlleyMinHue", 0);
-        AlleyColorMaxHue = context->GetPointer<unsigned int>("AlleyMaxHue", 20);
+        IsEnemyRed = context->GetPointer<bool>("IsEnemyRed", true);
 
         if (OptionVariables.count("debug"))
         {
@@ -74,31 +71,15 @@ namespace Icarus
             if (signal.name() == "sc_b")
             {
                 this->EnemyColorInitialized = true;
-                *(this->EnemyColorMinHue) = 5; // Attention: hue of white (over exposure) is 0.
-                *(this->EnemyColorMaxHue) = 20;
-                *(this->AlleyColorMinHue) = 90;
-                *(this->AlleyColorMaxHue) = 130;
+                *IsEnemyRed = true;
                 this->GetLogger()->RecordMilestone(
-                        "Color received: alley color blue ["
-                        + std::to_string(*(this->AlleyColorMinHue)) + ","
-                        + std::to_string(*(this->AlleyColorMaxHue))
-                        + "], enemy color red ["
-                        + std::to_string(*(this->EnemyColorMinHue)) + ","
-                        + std::to_string(*(this->EnemyColorMaxHue)) + "]");
+                        "Color received: alley color blue, enemy color red.");
             } else if (signal.name() == "sc_r")
             {
                 this->EnemyColorInitialized = true;
-                *(this->EnemyColorMinHue) = 100;
-                *(this->EnemyColorMaxHue) = 120;
-                *(this->AlleyColorMinHue) = 5; // Attention: hue of white (over exposure) is 0.
-                *(this->AlleyColorMaxHue) = 30;
+                *IsEnemyRed = false;
                 this->GetLogger()->RecordMilestone(
-                        "Color received: alley color red ["
-                        + std::to_string(*(this->AlleyColorMinHue)) + ","
-                        + std::to_string(*(this->AlleyColorMaxHue))
-                        + "], enemy color blue ["
-                        + std::to_string(*(this->EnemyColorMinHue)) + ","
-                        + std::to_string(*(this->EnemyColorMaxHue)) + "]");
+                        "Color received: alley color red, enemy color blue.");
             } else if (signal.name() == "to_ec_b" || signal.name() == "to_ec_s")
             {
                 this->Pause();
