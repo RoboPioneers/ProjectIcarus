@@ -47,8 +47,6 @@ namespace Icarus
                 // New and old ROIs are overlapped.
                 main_rectangle.width = PreviousInterestedArea->width;
                 main_rectangle.height = PreviousInterestedArea->height;
-                main_rectangle.x = main_rectangle.x * 0.7 + PreviousInterestedArea->x * 0.3;
-                main_rectangle.y = main_rectangle.y * 0.7 + PreviousInterestedArea->y * 0.3;
             }
 
             PreviousInterestedArea = main_rectangle;
