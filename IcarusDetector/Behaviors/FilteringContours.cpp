@@ -14,8 +14,8 @@ namespace Icarus
     void FilteringContours::LoadConfigurations()
     {
         IntensityThreshold = GetConfigurator()->Get<unsigned int>("IntensityThreshold").value_or(150);
-        ColorThreshold = GetConfigurator()->Get<int>("ColorThreshold").value_or(100);
-        EnemyDilateSize = GetConfigurator()->Get<unsigned int>("EnemyDilateSize").value_or(30);
+        ColorThreshold = GetConfigurator()->Get<int>("ColorThreshold").value_or(200);
+        EnemyDilateSize = GetConfigurator()->Get<unsigned int>("EnemyDilateSize").value_or(15);
     }
 
     /// Initialize blackboard values.
