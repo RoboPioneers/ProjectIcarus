@@ -45,8 +45,10 @@ namespace Icarus
             if (PreviousInterestedArea)
             {
                 // New and old ROIs are overlapped.
-                main_rectangle.width = PreviousInterestedArea->width;
-                main_rectangle.height = PreviousInterestedArea->height;
+                if (main_rectangle.width < PreviousInterestedArea->width)
+                    main_rectangle.width = PreviousInterestedArea->width;
+                if (main_rectangle.height < PreviousInterestedArea->height)
+                    main_rectangle.height = PreviousInterestedArea->height;
             }
 
             PreviousInterestedArea = main_rectangle;
