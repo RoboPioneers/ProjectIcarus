@@ -204,10 +204,13 @@ namespace Icarus
         if (*FoundTarget)
         {
             *HitCommand = 1;
-            HitPoint->x = (static_cast<int>(best_armor.value()->ContourA->Rectangle.center.x) +
+            int raw_hit_point_x = (static_cast<int>(best_armor.value()->ContourA->Rectangle.center.x) +
                     static_cast<int>(best_armor.value()->ContourB->Rectangle.center.x)) / 2;
-            HitPoint->y = (static_cast<int>(best_armor.value()->ContourA->Rectangle.center.y) +
+            int raw_hit_point_y = (static_cast<int>(best_armor.value()->ContourA->Rectangle.center.y) +
                     static_cast<int>(best_armor.value()->ContourB->Rectangle.center.y)) / 2;
+
+            HitPoint->x = raw_hit_point_x - static_cast<int>(MainPicture->cols / 2.0);
+            HitPoint->y = static_cast<int>(MainPicture->rows / 2.0) - raw_hit_point_y;
 
             if (BigArmorDistanceEstimator && SmallArmorDistanceEstimator)
             {
