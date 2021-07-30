@@ -172,7 +172,7 @@ namespace Icarus
         });
 
         std::optional<double> best_score = std::nullopt;
-        std::optional<cv::RotatedRect> best_armor = std::nullopt;
+        std::optional<std::shared_ptr<PONElement>> best_armor = std::nullopt;
 
         // The 'center' position to lock.
         cv::Point2f locking_center;
@@ -187,53 +187,59 @@ namespace Icarus
                 if (!best_score || current_score < *best_score)
                 {
                     best_score = current_score;
-                    best_armor = armor->Rectangle;
+                    best_armor = armor;
                 }
             }
         }
-        *FoundTarget = best_armor;
+        if (best_armor.has_value())
+        {
+            *FoundTarget = best_armor.value()->Rectangle;
+        }
+        else
+        {
+            *FoundTarget = std::nullopt;
+        }
+
 
         if (*FoundTarget)
         {
             *HitCommand = 1;
-            HitPoint->x = static_cast<int>(best_armor->center.x) - static_cast<int>(MainPicture->cols / 2.0);
-            HitPoint->y = static_cast<int>(MainPicture->rows / 2.0) -  static_cast<int>(best_armor->center.y);
+            HitPoint->x = (static_cast<int>(best_armor.value()->ContourA->Rectangle.center.x) +
+                    static_cast<int>(best_armor.value()->ContourB->Rectangle.center.x)) / 2;
+            HitPoint->y = (static_cast<int>(best_armor.value()->ContourA->Rectangle.center.y) +
+                    static_cast<int>(best_armor.value()->ContourB->Rectangle.center.y)) / 2;
 
             if (BigArmorDistanceEstimator && SmallArmorDistanceEstimator)
             {
-                auto best_armor_feature = Modules::GeometryFeature::Standardize(*best_armor);
+                auto& best_armor_found = best_armor.value();
                 std::vector<cv::Point2d> camera_points;
-                if (best_armor_feature.Angle > 90)
+
+                Modules::GeometryFeature* left_contour_feature = nullptr;
+                Modules::GeometryFeature* right_contour_feature = nullptr;
+                if (best_armor_found->ContourA->Rectangle.center.x < best_armor_found->ContourB->Rectangle.center.y)
                 {
-                    camera_points.emplace_back(static_cast<cv::Vec2d>(
-                            static_cast<cv::Point_<double>>(best_armor_feature.Center)) +
-                            static_cast<cv::Vec2d>(best_armor_feature.Vectors.ClockwiseDiagonal));
-                    camera_points.emplace_back(static_cast<cv::Vec2d>(
-                            static_cast<cv::Point_<double>>(best_armor_feature.Center)) +
-                            static_cast<cv::Vec2d>(best_armor_feature.Vectors.AnticlockwiseDiagonal));
-                    camera_points.emplace_back(static_cast<cv::Vec2d>(
-                            static_cast<cv::Point_<double>>(best_armor_feature.Center)) -
-                            static_cast<cv::Vec2d>(best_armor_feature.Vectors.ClockwiseDiagonal));
-                    camera_points.emplace_back(static_cast<cv::Vec2d>(
-                            static_cast<cv::Point_<double>>(best_armor_feature.Center)) -
-                            static_cast<cv::Vec2d>(best_armor_feature.Vectors.AnticlockwiseDiagonal));
+                    left_contour_feature = &best_armor_found->ContourA->Feature;
+                    right_contour_feature = &best_armor_found->ContourB->Feature;
                 }
                 else
                 {
-                    camera_points.emplace_back(static_cast<cv::Vec2d>(
-                            static_cast<cv::Point_<double>>(best_armor_feature.Center)) -
-                            static_cast<cv::Vec2d>(best_armor_feature.Vectors.ClockwiseDiagonal));
-                    camera_points.emplace_back(static_cast<cv::Vec2d>(
-                            static_cast<cv::Point_<double>>(best_armor_feature.Center)) -
-                            static_cast<cv::Vec2d>(best_armor_feature.Vectors.AnticlockwiseDiagonal));
-                    camera_points.emplace_back(static_cast<cv::Vec2d>(
-                            static_cast<cv::Point_<double>>(best_armor_feature.Center)) +
-                            static_cast<cv::Vec2d>(best_armor_feature.Vectors.ClockwiseDiagonal));
-                    camera_points.emplace_back(static_cast<cv::Vec2d>(
-                            static_cast<cv::Point_<double>>(best_armor_feature.Center)) +
-                            static_cast<cv::Vec2d>(best_armor_feature.Vectors.AnticlockwiseDiagonal));
+                    left_contour_feature = &best_armor_found->ContourB->Feature;
+                    right_contour_feature = &best_armor_found->ContourA->Feature;
                 }
-                if (best_armor_feature.Length / best_armor_feature.Width > ArmorSizeRatioSeparator)
+
+                camera_points.emplace_back(static_cast<cv::Vec2d>(
+                        static_cast<cv::Point_<double>>(right_contour_feature->Center)) +
+                        static_cast<cv::Vec2d>(right_contour_feature->Vectors.Direction / 2.0));
+                camera_points.emplace_back(static_cast<cv::Vec2d>(
+                        static_cast<cv::Point_<double>>(right_contour_feature->Center)) -
+                        static_cast<cv::Vec2d>(right_contour_feature->Vectors.Direction / 2.0));
+                camera_points.emplace_back(static_cast<cv::Vec2d>(
+                        static_cast<cv::Point_<double>>(left_contour_feature->Center)) -
+                        static_cast<cv::Vec2d>(left_contour_feature->Vectors.Direction / 2.0));
+                camera_points.emplace_back(static_cast<cv::Vec2d>(
+                        static_cast<cv::Point_<double>>(left_contour_feature->Center)) +
+                        static_cast<cv::Vec2d>(left_contour_feature->Vectors.Direction / 2.0));
+                if (best_armor_found->Feature.Length / best_armor_found->Feature.Width > ArmorSizeRatioSeparator)
                 {
                     *HitDistance = BigArmorDistanceEstimator->GetDistance(camera_points);
                 }
