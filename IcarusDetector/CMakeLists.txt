@@ -84,7 +84,7 @@ macro(add_custom_module target_name visibility module_name)
     target_link_libraries(${target_name} ${visibility} ${${module_name}_LIBS})
 endmacro()
 
-find_package(GaiaFramework 0.9)
+find_package(GaiaFramework 0.9.2)
 target_include_directories(${TARGET_NAME} PUBLIC ${GaiaFramework_INCLUDE_DIRS})
 target_link_libraries(${TARGET_NAME} PUBLIC Gaia::Framework)
 
