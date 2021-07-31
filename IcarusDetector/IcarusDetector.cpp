@@ -105,10 +105,10 @@ namespace Icarus
         auto current_time = std::chrono::steady_clock::now();
 
         // Suppress frequency to approximately 130 fps.
-        if (current_time < LastFrameTimePoint + std::chrono::microseconds(7692))
+        if (current_time < LastFrameTimePoint + std::chrono::microseconds(6667))
         {
-//            std::this_thread::sleep_for(std::chrono::microseconds(7692) -
-//                std::chrono::duration_cast<std::chrono::microseconds>(current_time - LastFrameTimePoint));
+            std::this_thread::sleep_for(std::chrono::microseconds(6667) -
+                std::chrono::duration_cast<std::chrono::microseconds>(current_time - LastFrameTimePoint));
         }
         current_time = std::chrono::steady_clock::now();
         LastFrameTimePoint = current_time;

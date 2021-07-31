@@ -47,6 +47,8 @@ namespace Icarus
 
         Serial->Send(package_bytes);
 
+        *HitCommand = 0;
+
         return Result::Success;
     }
 }
