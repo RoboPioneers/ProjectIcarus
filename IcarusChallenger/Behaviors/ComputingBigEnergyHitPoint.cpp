@@ -26,8 +26,8 @@ namespace Icarus
     void ComputingBigEnergyHitPoint::LoadConfigurations()
     {
         CompensationTime = GetConfigurator()->Get<double>("CompensationTime").value_or(250.0);
-        UpperSpeedThreshold = GetConfigurator()->Get<double>("UpperSpeedThreshold").value_or(0.1270);
-        LowerSpeedThreshold = GetConfigurator()->Get<double>("LowerSpeedThreshold").value_or(0.0270);
+        UpperSpeedThreshold = GetConfigurator()->Get<double>("UpperSpeedThreshold").value_or(0.1180);
+        LowerSpeedThreshold = GetConfigurator()->Get<double>("LowerSpeedThreshold").value_or(0.0310);
     }
 
     void ComputingBigEnergyHitPoint::OnInitialize()
