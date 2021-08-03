@@ -177,7 +177,7 @@ namespace Icarus
         // The 'center' position to lock.
         cv::Point2f locking_center;
         locking_center.x = static_cast<float>(MainPicture->cols) * 0.5f;
-        locking_center.y = static_cast<float>(MainPicture->rows) * 0.618f;
+        locking_center.y = static_cast<float>(MainPicture->rows) * 0.5f;
         for (const auto& armor_layer : possible_armors)
         {
             for (const auto& armor : armor_layer)
